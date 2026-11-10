@@ -8,6 +8,7 @@ const fair = p => (p > 0.001 ? (1 / p).toFixed(2) : '—');
 const num = s => parseFloat(String(s).replace(',', '.'));
 const SIDE = { '1': 'home', 'X': 'draw', '2': 'away' };
 const STAGE = { regular: 'Fase regular', playin: 'Play-in', liguilla: 'Liguilla' };
+const icon = (name, cls) => `<svg class="i${cls ? ' ' + cls : ''}" aria-hidden="true"><use href="icons/ui.svg#${name}"/></svg>`;
 
 function load(key, dflt) {
   try { return JSON.parse(localStorage.getItem(key)) ?? dflt; } catch { return dflt; }
@@ -49,7 +50,7 @@ async function loadData() {
 // ---------- Partidos ----------
 function viewPartidos() {
   const list = [...S.data.fixtures].sort((a, b) => a.kickoff.localeCompare(b.kickoff));
-  if (!list.length) return '<h1>Partidos</h1><p class="muted">No hay partidos próximos en los datos.</p>';
+  if (!list.length) return `<h1>Partidos</h1><div class="empty">${icon('pitch', 'art')}<p class="muted">No hay partidos próximos en los datos.</p></div>`;
   const now = Date.now();
   return '<h1>Próximos partidos</h1>' + list.map(f => {
     const g = grid(f);
@@ -60,13 +61,13 @@ function viewPartidos() {
       ? `<tr><td>${r.label}</td>${['home', 'draw', 'away'].map(s => `<td>${pct(r[s], 0)}</td>`).join('')}</tr>
          <tr><td class="muted small">Mejor cuota</td>${['home', 'draw', 'away'].map(s => {
            const o = f.market[s], edge = r[s] * o - 1;
-           return edge > 0 ? `<td class="value small">${o.toFixed(2)}<br>+${pct(edge)}</td>` : `<td class="muted small">${o.toFixed(2)}</td>`;
+           return edge > 0 ? `<td class="value small">${o.toFixed(2)}<br>${icon('trend')}+${pct(edge)}</td>` : `<td class="muted small">${o.toFixed(2)}</td>`;
          }).join('')}</tr>`
       : '<tr><td colspan="4" class="muted small">Sin cuotas de mercado para este partido</td></tr>';
     const past = new Date(f.kickoff).getTime() < now;
     return `<a class="card${past ? ' past' : ''}" href="#/partido/${encodeURIComponent(f.id)}">
       <div class="row"><span class="teams">${esc(f.home)} vs ${esc(f.away)}</span><span class="muted small">›</span></div>
-      <div class="muted small">${when(f.kickoff)} · ${STAGE[f.stage] || esc(f.stage || '')}${past ? ' · ya comenzó' : ''}</div>
+      <div class="muted small">${icon('clock')} ${when(f.kickoff)} · ${icon('trophy')} ${STAGE[f.stage] || esc(f.stage || '')}${past ? ' · ya comenzó' : ''}</div>
       <table><tr><th></th><th>1</th><th>X</th><th>2</th></tr>
         <tr><td>Modelo</td>${model}</tr>${market}</table></a>`;
   }).join('') + '<p class="muted small">Pinnacle = probabilidad de sus cuotas sin margen (la referencia más precisa; si no cotiza, el consenso de las casas). Mejor cuota resaltada = paga más de lo justo según Pinnacle (prob. × cuota &gt; 1), con la ventaja estimada.</p>';
@@ -80,10 +81,10 @@ function marketButton(f, g, k) {
   const r = SIDE[k] && ref(f);
   if (r) {
     const s = SIDE[k], o = f.market[s], edge = r[s] * o - 1;
-    extra = `<br><span class="muted small">${r.label} ${pct(r[s])} (justa ${fair(r[s])}) · mejor cuota ${o.toFixed(2)}</span>${edge > 0 ? ` <span class="value small">+${pct(edge)}</span>` : ''}`;
+    extra = `<br><span class="muted small">${r.label} ${pct(r[s])} (justa ${fair(r[s])}) · mejor cuota ${o.toFixed(2)}</span>${edge > 0 ? ` <span class="value small">${icon('trend')}+${pct(edge)}</span>` : ''}`;
   }
   return `<button class="mk${on ? ' on' : ''}" data-act="leg" data-fid="${esc(f.id)}" data-key="${k}">
-    <span class="lbl">${esc(marketLabel(k, f.home, f.away))}</span>
+    <span class="lbl">${icon('plus', 'add')}${icon('check', 'added')}${esc(marketLabel(k, f.home, f.away))}</span>
     <span class="nums"><b>${pct(p)}</b> · justa ${fair(p)}${extra}</span></button>`;
 }
 
@@ -99,8 +100,8 @@ function viewPartido(id) {
   const top = g.flatMap((row, h) => row.map((p, a) => ({ h, a, p }))).sort((x, y) => y.p - x.p).slice(0, 5);
   return `<p><a href="#/">‹ Partidos</a></p>
     <h1>${esc(f.home)} vs ${esc(f.away)}</h1>
-    <p class="muted small">${when(f.kickoff)} · ${STAGE[f.stage] || esc(f.stage || '')} · goles esperados ${f.lambda.toFixed(2)} – ${f.mu.toFixed(2)}</p>
-    ${f.market ? '' : '<p class="note">Sin cuotas de mercado para este partido: solo se muestra el modelo.</p>'}
+    <p class="muted small">${icon('clock')} ${when(f.kickoff)} · ${icon('trophy')} ${STAGE[f.stage] || esc(f.stage || '')} · goles esperados ${f.lambda.toFixed(2)} – ${f.mu.toFixed(2)}</p>
+    ${f.market ? '' : `<p class="note">${icon('info')}Sin cuotas de mercado para este partido: solo se muestra el modelo.</p>`}
     <div class="card"><h2>Marcadores más probables</h2>
       <table><tr><th>Marcador</th><th>Prob.</th><th>Cuota justa</th></tr>
       ${top.map(s => `<tr><td>${s.h}–${s.a}</td><td>${pct(s.p)}</td><td>${fair(s.p)}</td></tr>`).join('')}</table>
@@ -153,10 +154,10 @@ function parlayCalc() {
 function summaryHtml() {
   if (!S.legs.length) return '';
   const c = parlayCalc();
-  if (c.missing) return '<p class="note">Hay selecciones de partidos que ya no están en los datos. Quítalas para calcular el parlay.</p>';
+  if (c.missing) return `<p class="note">${icon('info')}Hay selecciones de partidos que ya no están en los datos. Quítalas para calcular el parlay.</p>`;
   let notes = '';
-  if (c.sameMatch) notes += '<p class="note">Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. Muchas casas de apuestas no aceptan combinarlas en un parlay (o pagan menos).</p>';
-  if (c.p === 0) notes += '<p class="note">Estas selecciones no pueden cumplirse a la vez (probabilidad 0).</p>';
+  if (c.sameMatch) notes += `<p class="note">${icon('info')}Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. Muchas casas de apuestas no aceptan combinarlas en un parlay (o pagan menos).</p>`;
+  if (c.p === 0) notes += `<p class="note">${icon('info')}Estas selecciones no pueden cumplirse a la vez (probabilidad 0).</p>`;
   const hasOdds = Number.isFinite(c.O);
   const hasRef = Number.isFinite(c.pRef);
   const pBet = hasRef ? c.pRef : c.p;  // stake on the sharper reference when there is one
@@ -164,7 +165,7 @@ function summaryHtml() {
   const evRef = hasOdds && hasRef ? c.pRef * c.O - 1 : NaN;
   const bank = num(S.bankroll);
   const stake = hasOdds && bank > 0 ? bank * kelly(pBet, c.O) / 4 : NaN;
-  const evB = e => `<b class="${e > 0 ? 'value' : ''}">${Number.isFinite(e) ? (e > 0 ? '+' : '') + pct(e) : '—'}</b>`;
+  const evB = e => `<b class="${e > 0 ? 'value' : ''}">${Number.isFinite(e) ? (e > 0 ? icon('trend') + '+' : '') + pct(e) : '—'}</b>`;
   const evMain = hasRef ? evRef : ev;
   return notes + `<div class="stats">
       <div>Prob. modelo<b>${pct(c.p, 2)}</b></div>
@@ -190,21 +191,21 @@ function viewParlay() {
       + (r ? ` · justa ${r.label} ${fair(r[SIDE[l.key]])}` : '') : 'Partido no disponible';
     return `<div class="leg"><div><b>${esc(marketLabel(l.key, home, away))}</b><br><span class="muted small">${sub}</span></div>
       <input data-act="odds" data-i="${i}" inputmode="decimal" placeholder="cuota" aria-label="Cuota" value="${esc(l.odds ?? '')}">
-      <button class="ghost" data-act="del" data-i="${i}" aria-label="Quitar">✕</button></div>`;
+      <button class="ghost" data-act="del" data-i="${i}" aria-label="Quitar">${icon('x')}</button></div>`;
   }).join('');
   const saved = S.saved.map((s, i) => `<div class="leg"><div><b>${esc(s.name)}</b><br>
       <span class="muted small">${s.legs.length} selecciones · ${new Date(s.at).toLocaleDateString('es-MX')}</span></div>
       <button class="ghost" data-act="load" data-i="${i}">Cargar</button>
-      <button class="ghost" data-act="rm" data-i="${i}" aria-label="Borrar">✕</button></div>`).join('');
+      <button class="ghost" data-act="rm" data-i="${i}" aria-label="Borrar">${icon('trash')}</button></div>`).join('');
   return `<h1>Parlay</h1>
-    <div class="card">${legs || '<p class="muted">Aún no hay selecciones. Abre un partido y toca un mercado para agregarlo.</p>'}</div>
+    <div class="card">${legs || `<div class="empty">${icon('ticket')}<p class="muted">Aún no hay selecciones. Abre un partido y toca un mercado para agregarlo.</p></div>`}</div>
     ${S.legs.length ? `<div class="card">
       <div class="row" style="margin-bottom:.6rem"><label for="bank">Bankroll ($)</label>
         <input id="bank" data-act="bank" inputmode="decimal" value="${esc(S.bankroll)}"></div>
       <div id="summary">${summaryHtml()}</div></div>
     <div class="card"><div class="row"><input id="pname" class="wide" placeholder="Nombre del parlay">
-      <button class="btn" data-act="save">Guardar</button></div>
-      <p style="margin:.6rem 0 0"><button class="ghost" data-act="clear">Vaciar parlay</button></p></div>` : ''}
+      <button class="btn" data-act="save">${icon('save')} Guardar</button></div>
+      <p style="margin:.6rem 0 0"><button class="ghost" data-act="clear">${icon('trash')} Vaciar parlay</button></p></div>` : ''}
     ${saved ? `<h2>Guardados</h2><div class="card">${saved}</div>` : ''}`;
 }
 
@@ -244,7 +245,7 @@ function viewModelo() {
       <p class="muted small">Cada punto agrupa predicciones parecidas (local, empate y visita). Si el modelo está bien calibrado, los puntos caen sobre la diagonal: cuando dice 40%, pasa cerca del 40% de las veces. El tamaño indica cuántos casos hay.</p></div>` : ''}`
     : '<p class="muted">No hay datos de backtest.</p>';
   return `<h1>Modelo</h1>
-    <p class="note"><b>Probabilidades, no certezas.</b> Un 60% significa que de cada 10 partidos así el favorito gana unos 6 y no gana 4. Las casas de apuestas conocen lesiones, alineaciones y movimientos de dinero, y además cobran un margen: ganarles a largo plazo es muy difícil. Si el mercado tiene mejor RPS o log loss que el modelo, el mercado predice mejor. Apuesta solo lo que estés dispuesto a perder.</p>
+    <p class="note">${icon('info')}<b>Probabilidades, no certezas.</b> Un 60% significa que de cada 10 partidos así el favorito gana unos 6 y no gana 4. Las casas de apuestas conocen lesiones, alineaciones y movimientos de dinero, y además cobran un margen: ganarles a largo plazo es muy difícil. Si el mercado tiene mejor RPS o log loss que el modelo, el mercado predice mejor. Apuesta solo lo que estés dispuesto a perder.</p>
     ${bt}
     ${m ? `<div class="card"><h2>Parámetros</h2><table>
       <tr><td>Modelo</td><td>${esc(m.name)}</td></tr>
@@ -315,7 +316,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
     S.data = r.data;
     S.sample = r.sample;
   } catch {
-    view.innerHTML = '<p>No se pudieron cargar los datos. Revisa tu conexión e intenta de nuevo.</p>';
+    view.innerHTML = `<div class="empty">${icon('wifi-off')}<p>No se pudieron cargar los datos. Revisa tu conexión e intenta de nuevo.</p></div>`;
     return;
   }
   S.data.fixtures = (S.data.fixtures || []).filter(f => f && f.id && f.kickoff && f.lambda > 0 && f.mu > 0);

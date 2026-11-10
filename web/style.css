@@ -11,6 +11,7 @@
   }
 }
 * { box-sizing: border-box; }
+.i { width: 1.15em; height: 1.15em; vertical-align: -.2em; flex: none; }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
   font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -26,6 +27,7 @@ h1 { font-size: 1.25rem; } h2 { font-size: 1.05rem; } h3 { font-size: .95rem; co
   background: var(--card); border-bottom: 1px solid var(--line);
 }
 .brand { font-weight: 700; text-decoration: none; color: var(--fg); }
+.brand .i { color: var(--accent); width: 1.4em; height: 1.4em; vertical-align: -.33em; margin-right: .35em; }
 .badge { background: var(--value-bg); color: var(--value); border-radius: 99px; padding: .1rem .55rem; font-size: .75rem; font-weight: 600; }
 #updated { margin-left: auto; }
 main { max-width: 720px; margin: 0 auto; padding: .8rem 1rem; }
@@ -33,7 +35,8 @@ main { max-width: 720px; margin: 0 auto; padding: .8rem 1rem; }
   position: fixed; bottom: 0; left: 0; right: 0; display: flex; z-index: 2;
   background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom);
 }
-.tabs a { flex: 1; text-align: center; padding: .85rem 0; color: var(--muted); text-decoration: none; font-weight: 600; }
+.tabs a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .5rem 0 .45rem; color: var(--muted); text-decoration: none; font-weight: 600; font-size: .8rem; }
+.tabs .i { width: 1.5rem; height: 1.5rem; }
 .tabs a.on { color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
 .count { background: var(--accent); color: var(--accent-fg); border-radius: 99px; padding: 0 .45rem; font-size: .75rem; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; margin: 0 0 .8rem; }
@@ -49,6 +52,10 @@ tr + tr td { border-top: 1px solid var(--line); }
 .value { color: var(--value); font-weight: 700; }
 td.value, span.value { background: var(--value-bg); border-radius: 6px; }
 .note { background: var(--warn-bg); border-radius: 10px; padding: .6rem .8rem; margin: 0 0 .8rem; font-size: .9rem; }
+.note .i { color: var(--value); margin-right: .35em; }
+.empty { text-align: center; padding: .6rem 0; }
+.empty .i { display: block; width: 3rem; height: 3rem; margin: 0 auto .4rem; color: var(--muted); }
+.empty .art { width: 9rem; height: 6rem; color: var(--accent); }
 .heat td, .heat th { text-align: center; padding: .25rem 0; font-size: .78rem; }
 .heat td { border: 1px solid var(--line); background: rgba(var(--heat), var(--a, 0)); }
 .mk { width: 100%; display: flex; justify-content: space-between; gap: .5rem; align-items: center;
@@ -56,10 +63,13 @@ td.value, span.value { background: var(--value-bg); border-radius: 6px; }
 .mk:first-of-type { border-top: 0; }
 .mk .nums { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
 .mk.on { background: var(--value-bg); }
-.mk.on .lbl::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+.mk .lbl { display: flex; gap: .35em; }
+.mk .lbl .i { margin-top: .12em; color: var(--muted); }
+.mk .added, .mk.on .add { display: none; }
+.mk.on .added { display: inline-block; color: var(--accent); }
 input { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: .45rem .55rem; width: 6.5rem; }
 input.wide { width: 100%; }
-button.btn { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: .5rem .9rem; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+button.btn { white-space: nowrap; font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: .5rem .9rem; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
 button.ghost { font: inherit; background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 8px; padding: .35rem .6rem; cursor: pointer; }
 .leg { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .55rem 0; border-top: 1px solid var(--line); }
 .leg:first-child { border-top: 0; }
