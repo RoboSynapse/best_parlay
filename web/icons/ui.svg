@@ -52,6 +52,12 @@
     <path d="M2.45 9.45a13.5 13.5 0 0 1 19.1 0M5.64 12.64a9 9 0 0 1 12.72 0M8.82 15.82a4.5 4.5 0 0 1 6.36 0M4 4l16 16"/>
     <circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/>
   </symbol>
+  <symbol id="chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m14.5 6-6 6 6 6"/>
+  </symbol>
+  <symbol id="chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m9.5 6 6 6-6 6"/>
+  </symbol>
   <symbol id="pitch" viewBox="0 0 96 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
     <rect x="3" y="3" width="90" height="58" rx="4" fill="currentColor" fill-opacity=".08"/>
     <path d="M48 3v58M3 18h13v28H3M3 25h5v14H3M93 18H80v28h13M93 25h-5v14h5"/>

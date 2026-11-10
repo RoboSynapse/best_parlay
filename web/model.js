@@ -75,6 +75,12 @@ export function prob(grid, keys) {
   return p;
 }
 
+// Typed odds -> decimal. Accepts "1.85", "1,85" and American "+150" / "-120" (whole number, |v| >= 100).
+export function toDecimal(s) {
+  const t = String(s).replace(',', '.').replace('−', '-'), v = parseFloat(t);
+  return Math.abs(v) >= 100 && !t.includes('.') ? (v > 0 ? 1 + v / 100 : 1 - 100 / v) : v;
+}
+
 // Kelly fraction for decimal odds; 0 when there is no edge.
 export function kelly(p, odds) {
   if (!(odds > 1) || !(p > 0)) return 0;
