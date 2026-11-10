@@ -1,0 +1,48 @@
+# Daily: fetch data, refit the model, write web/data/predictions.json, deploy web/ to GitHub Pages.
+# Nothing is committed back; predictions live only in the deployed site.
+name: build-and-deploy
+
+on:
+  schedule:
+    - cron: "0 14 * * *"   # 08:00 Mexico City
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python pipeline/build.py
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}   # optional; without it market odds are null
+      - run: sed -i "s/^const VERSION = .*/const VERSION = 'bp-${GITHUB_SHA::7}';/" web/sw.js   # new commit => phones refresh the app shell
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
