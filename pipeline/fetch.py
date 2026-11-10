@@ -131,6 +131,22 @@ def fetch_fixtures(known, days=10, today=None):
     return fixtures
 
 
+def devig(prices):
+    inv = {k: 1 / v for k, v in prices.items()}
+    s = sum(inv.values())
+    return {k: v / s for k, v in inv.items()}
+
+
+def fair_probs(books):
+    """Margin-free 1X2 probabilities: Pinnacle if it priced the match, else the mean over all books."""
+    if "pinnacle" in books:
+        p, src = devig(books["pinnacle"]), "pinnacle"
+    else:
+        ps = [devig(b) for b in books.values()]
+        p, src = {k: sum(d[k] for d in ps) / len(ps) for k in ("home", "draw", "away")}, f"consensus-{len(ps)}"
+    return {**{k: round(v, 4) for k, v in p.items()}, "source": src}
+
+
 def fetch_odds(known):
     """{(home, away): market dict} from The Odds API (one request), or {} without a key / on error."""
     key = os.environ.get("ODDS_API_KEY")
@@ -147,17 +163,22 @@ def fetch_odds(known):
             if not home or not away:
                 print(f"!!! UNMAPPED ODDS API TEAM NAME: {ev['home_team']} / {ev['away_team']}")
                 continue
-            best, n = {}, 0
+            best, books = {}, {}
             for bk in ev.get("bookmakers", []):
                 for mk in bk.get("markets", []):
                     if mk.get("key") != "h2h":
                         continue
-                    n += 1
+                    prices = {}
                     for o in mk.get("outcomes", []):
                         side = "draw" if o["name"] == "Draw" else "home" if o["name"] == ev["home_team"] else "away"
-                        best[side] = max(best.get(side, 0.0), float(o["price"]))
-            if len(best) == 3:
-                out[(home, away)] = {**{k: round(v, 3) for k, v in best.items()}, "source": f"best-of-{n}"}
+                        prices[side] = float(o["price"])
+                    if len(prices) == 3 and min(prices.values()) > 1:
+                        books[bk["key"]] = prices
+                        for side, p in prices.items():
+                            best[side] = max(best.get(side, 0.0), p)
+            if books:
+                out[(home, away)] = {**{k: round(v, 3) for k, v in best.items()},
+                                     "source": f"best-of-{len(books)}", "fair": fair_probs(books)}
         return out
     except Exception as e:  # don't print str(e): request errors include the URL with the API key
         status = getattr(getattr(e, "response", None), "status_code", None)

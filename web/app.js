@@ -28,6 +28,15 @@ function grid(f) {
   if (!S.grids.has(f.id)) S.grids.set(f.id, scoreGrid(f.lambda, f.mu, f.rho ?? S.data.model?.rho ?? 0));
   return S.grids.get(f.id);
 }
+// Margin-free reference probabilities: Pinnacle (or the books' consensus) from the pipeline,
+// else the best prices de-vigged (older data files). The backtest shows this beats the model.
+function ref(f) {
+  const m = f.market;
+  if (!m) return null;
+  if (m.fair) return { ...m.fair, label: m.fair.source === 'pinnacle' ? 'Pinnacle' : 'Consenso' };
+  const imp = implied(m);
+  return imp && { ...imp, label: 'Mercado' };
+}
 const when = iso => new Date(iso).toLocaleString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 async function loadData() {
@@ -48,17 +57,14 @@ function viewPartidos() {
   return '<h1>Próximos partidos</h1>' + list.map(f => {
     const g = grid(f);
     const p = ['1', 'X', '2'].map(k => prob(g, [k]));
-    const imp = implied(f.market);
-    const o = imp && [f.market.home, f.market.draw, f.market.away];
-    const model = p.map((pi, i) => {
-      const edge = o ? pi * o[i] - 1 : 0;
-      return edge > 0
-        ? `<td class="value">${pct(pi, 0)}<br><small>+${pct(edge)}</small></td>`
-        : `<td>${pct(pi, 0)}</td>`;
-    }).join('');
-    const market = imp
-      ? `<tr><td>Mercado</td>${[imp.home, imp.draw, imp.away].map(q => `<td>${pct(q, 0)}</td>`).join('')}</tr>
-         <tr><td class="muted small">Cuota</td>${o.map(x => `<td class="muted small">${x.toFixed(2)}</td>`).join('')}</tr>`
+    const r = ref(f);
+    const model = p.map(pi => `<td>${pct(pi, 0)}</td>`).join('');
+    const market = r
+      ? `<tr><td>${r.label}</td>${['home', 'draw', 'away'].map(s => `<td>${pct(r[s], 0)}</td>`).join('')}</tr>
+         <tr><td class="muted small">Mejor cuota</td>${['home', 'draw', 'away'].map(s => {
+           const o = f.market[s], edge = r[s] * o - 1;
+           return edge > 0 ? `<td class="value small">${o.toFixed(2)}<br>+${pct(edge)}</td>` : `<td class="muted small">${o.toFixed(2)}</td>`;
+         }).join('')}</tr>`
       : '<tr><td colspan="4" class="muted small">Sin cuotas de mercado para este partido</td></tr>';
     const past = new Date(f.kickoff).getTime() < now;
     return `<a class="card${past ? ' past' : ''}" href="#/partido/${encodeURIComponent(f.id)}">
@@ -66,7 +72,7 @@ function viewPartidos() {
       <div class="muted small">${when(f.kickoff)} · ${STAGE[f.stage] || esc(f.stage || '')}${past ? ' · ya comenzó' : ''}</div>
       <table><tr><th></th><th>1</th><th>X</th><th>2</th></tr>
         <tr><td>Modelo</td>${model}</tr>${market}</table></a>`;
-  }).join('') + '<p class="muted small">Mercado = probabilidad implícita de las cuotas sin margen. Resaltado = el modelo ve valor (prob. × cuota &gt; 1), con la ventaja estimada.</p>';
+  }).join('') + '<p class="muted small">Pinnacle = probabilidad de sus cuotas sin margen (la referencia más precisa; si no cotiza, el consenso de las casas). Mejor cuota resaltada = paga más de lo justo según Pinnacle (prob. × cuota &gt; 1), con la ventaja estimada.</p>';
 }
 
 // ---------- Partido ----------
@@ -74,9 +80,10 @@ function marketButton(f, g, k) {
   const p = prob(g, [k]);
   const on = S.legs.some(l => l.fid === f.id && l.key === k);
   let extra = '';
-  if (SIDE[k] && f.market && f.market[SIDE[k]] > 1) {
-    const o = f.market[SIDE[k]], edge = p * o - 1;
-    extra = `<br><span class="muted small">mercado ${o.toFixed(2)}</span>${edge > 0 ? ` <span class="value small">+${pct(edge)}</span>` : ''}`;
+  const r = SIDE[k] && ref(f);
+  if (r) {
+    const s = SIDE[k], o = f.market[s], edge = r[s] * o - 1;
+    extra = `<br><span class="muted small">${r.label} ${pct(r[s])} (justa ${fair(r[s])}) · mejor cuota ${o.toFixed(2)}</span>${edge > 0 ? ` <span class="value small">+${pct(edge)}</span>` : ''}`;
   }
   return `<button class="mk${on ? ' on' : ''}" data-act="leg" data-fid="${esc(f.id)}" data-key="${k}">
     <span class="lbl">${esc(marketLabel(k, f.home, f.away))}</span>
@@ -136,7 +143,13 @@ function parlayCalc() {
   const os = S.legs.map(l => num(l.odds));
   const O = os.length && os.every(o => o > 1) ? os.reduce((a, b) => a * b, 1) : NaN;
   const sameMatch = [...byMatch.values()].some(m => m.keys.length > 1);
-  return { p, O, missing, sameMatch };
+  // Pinnacle reference: only for 1X2 legs from different matches (it has no grid for combos).
+  let pRef = sameMatch ? NaN : 1;
+  for (const l of S.legs) {
+    const r = !missing && SIDE[l.key] && ref(fixture(l.fid));
+    pRef *= r ? r[SIDE[l.key]] : NaN;
+  }
+  return { p, pRef, O, missing, sameMatch };
 }
 
 function summaryHtml() {
@@ -147,26 +160,36 @@ function summaryHtml() {
   if (c.sameMatch) notes += '<p class="note">Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. Muchas casas de apuestas no aceptan combinarlas en un parlay (o pagan menos).</p>';
   if (c.p === 0) notes += '<p class="note">Estas selecciones no pueden cumplirse a la vez (probabilidad 0).</p>';
   const hasOdds = Number.isFinite(c.O);
+  const hasRef = Number.isFinite(c.pRef);
+  const pBet = hasRef ? c.pRef : c.p;  // stake on the sharper reference when there is one
   const ev = hasOdds ? c.p * c.O - 1 : NaN;
+  const evRef = hasOdds && hasRef ? c.pRef * c.O - 1 : NaN;
   const bank = num(S.bankroll);
-  const stake = hasOdds && bank > 0 ? bank * kelly(c.p, c.O) / 4 : NaN;
+  const stake = hasOdds && bank > 0 ? bank * kelly(pBet, c.O) / 4 : NaN;
+  const evB = e => `<b class="${e > 0 ? 'value' : ''}">${Number.isFinite(e) ? (e > 0 ? '+' : '') + pct(e) : '—'}</b>`;
+  const evMain = hasRef ? evRef : ev;
   return notes + `<div class="stats">
       <div>Prob. modelo<b>${pct(c.p, 2)}</b></div>
-      <div>Cuota justa<b>${fair(c.p)}</b></div>
+      <div>Prob. Pinnacle<b>${hasRef ? pct(c.pRef, 2) : '—'}</b></div>
+      <div>Cuota justa (Pinnacle)<b>${hasRef ? fair(c.pRef) : '—'}</b></div>
       <div>Cuota combinada<b>${hasOdds ? c.O.toFixed(2) : '—'}</b></div>
-      <div>Valor esperado (EV)<b class="${ev > 0 ? 'value' : ''}">${hasOdds ? (ev > 0 ? '+' : '') + pct(ev) : '—'}</b></div>
-      <div style="grid-column:1/-1">Apuesta sugerida (¼ Kelly)<b>${Number.isFinite(stake) ? '$' + stake.toFixed(2) : '—'}</b></div>
+      <div>EV vs Pinnacle${evB(evRef)}</div>
+      <div>EV vs modelo${evB(ev)}</div>
+      <div style="grid-column:1/-1">Apuesta sugerida (¼ Kelly${hasRef ? ', con Pinnacle' : ', con el modelo'})<b>${Number.isFinite(stake) ? '$' + stake.toFixed(2) : '—'}</b></div>
     </div>
     <p class="muted small">${!hasOdds ? 'Escribe la cuota decimal de tu casa de apuestas en cada selección.'
-      : ev > 0 ? 'EV = prob. × cuota − 1. Kelly ¼ reduce el riesgo si el modelo se equivoca.'
-      : 'Sin ventaja según el modelo: la apuesta sugerida es $0.'}</p>`;
+      : !hasRef ? 'Sin referencia de Pinnacle (combinaciones del mismo partido o mercados que no sean 1X2): se usa el modelo, que en el backtest es menos preciso.'
+      : evMain > 0 ? 'Tu cuota paga más de lo justo según Pinnacle. EV = prob. × cuota − 1; Kelly ¼ reduce el riesgo.'
+      : 'Tu cuota no supera la línea justa de Pinnacle: la apuesta sugerida es $0.'}</p>`;
 }
 
 function viewParlay() {
   const legs = S.legs.map((l, i) => {
     const f = fixture(l.fid);
     const home = f ? f.home : l.home || '?', away = f ? f.away : l.away || '?';
-    const sub = f ? `${esc(home)} vs ${esc(away)} · modelo ${pct(prob(grid(f), [l.key]))}` : 'Partido no disponible';
+    const r = f && SIDE[l.key] && ref(f);
+    const sub = f ? `${esc(home)} vs ${esc(away)} · modelo ${pct(prob(grid(f), [l.key]))}`
+      + (r ? ` · justa ${r.label} ${fair(r[SIDE[l.key]])}` : '') : 'Partido no disponible';
     return `<div class="leg"><div><b>${esc(marketLabel(l.key, home, away))}</b><br><span class="muted small">${sub}</span></div>
       <input data-act="odds" data-i="${i}" inputmode="decimal" placeholder="cuota" aria-label="Cuota" value="${esc(l.odds ?? '')}">
       <button class="ghost" data-act="del" data-i="${i}" aria-label="Quitar">✕</button></div>`;
@@ -217,7 +240,7 @@ function viewModelo() {
   };
   const bt = b ? `<div class="card"><h2>Backtest (sin ver el futuro)</h2>
       <p class="muted small">${b.n} partidos · ${esc(b.from)} a ${esc(b.to)} · menor es mejor</p>
-      <table><tr><th>Métrica</th><th>Modelo</th><th>Mercado</th></tr>
+      <table><tr><th>Métrica</th><th>Modelo</th><th>Pinnacle (cierre)</th></tr>
         ${row('RPS', b.rps_model, b.rps_market, 4)}${row('Log loss', b.logloss_model, b.logloss_market, 3)}</table></div>
     ${b.calibration?.length ? `<div class="card"><h2>Calibración</h2>${calibSvg(b.calibration)}
       <p class="muted small">Cada punto agrupa predicciones parecidas (local, empate y visita). Si el modelo está bien calibrado, los puntos caen sobre la diagonal: cuando dice 40%, pasa cerca del 40% de las veces. El tamaño indica cuántos casos hay.</p></div>` : ''}`

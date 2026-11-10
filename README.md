@@ -32,13 +32,18 @@ The pipeline writes it; the app only reads it. The app builds score grids on-dev
       "home": "Toluca", "away": "America",
       "lambda": 1.62, "mu": 1.05, "rho": -0.08,
       "p": { "home": 0.48, "draw": 0.26, "away": 0.26 },
-      "market": { "home": 2.05, "draw": 3.40, "away": 3.60, "source": "best-of-N" }
+      "market": {
+        "home": 2.05, "draw": 3.40, "away": 3.60, "source": "best-of-7",
+        "fair": { "home": 0.468, "draw": 0.276, "away": 0.256, "source": "pinnacle" }
+      }
     }
   ]
 }
 ```
 
-- `market` is `null` when no odds are available (decimal odds otherwise).
+- `market` is `null` when no odds are available. `home/draw/away` are the best decimal prices across books (where to bet);
+  `fair` holds margin-free probabilities from Pinnacle, or the mean over all books (`consensus-N`) when Pinnacle has no price.
+  `fair` is the value benchmark: a price is value when `fair × odds > 1`. The backtest's market column is Pinnacle closing odds too.
 - `stage`: `"regular"`, `"playin"` or `"liguilla"`.
 - `calibration`: home/draw/away probabilities pooled into bins; `pred` = mean predicted, `obs` = observed frequency.
 - Team names are the canonical ones from football-data.co.uk `MEX.csv`.

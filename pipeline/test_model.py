@@ -56,3 +56,12 @@ def test_fit_recovers_params():
     assert abs(rho - -0.08) < 0.1
     assert np.corrcoef(att, tatt)[0, 1] > 0.9 and np.corrcoef(dfc, tdfc)[0, 1] > 0.8
     assert np.abs((att - att.mean()) - tatt).max() < 0.15
+
+
+def test_fair_probs_prefers_pinnacle():
+    import fetch
+    pin = {"home": 2.0, "draw": 3.5, "away": 4.0}
+    f = fetch.fair_probs({"pinnacle": pin, "soft": {"home": 1.8, "draw": 3.2, "away": 3.6}})
+    assert f["source"] == "pinnacle" and abs(f["home"] + f["draw"] + f["away"] - 1) < 1e-3
+    assert abs(f["home"] - (1 / 2.0) / (1 / 2.0 + 1 / 3.5 + 1 / 4.0)) < 1e-4
+    assert fetch.fair_probs({"a": pin, "b": pin})["source"] == "consensus-2"
