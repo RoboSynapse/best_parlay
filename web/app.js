@@ -1,4 +1,4 @@
-import { scoreGrid, GROUPS, isMarket, marketLabel, prob, implied, kelly } from './model.js';
+import { scoreGrid, GROUPS, isMarket, marketLabel, prob, kelly } from './model.js';
 
 const $ = sel => document.querySelector(sel);
 const view = $('#view');
@@ -28,14 +28,11 @@ function grid(f) {
   if (!S.grids.has(f.id)) S.grids.set(f.id, scoreGrid(f.lambda, f.mu, f.rho ?? S.data.model?.rho ?? 0));
   return S.grids.get(f.id);
 }
-// Margin-free reference probabilities: Pinnacle (or the books' consensus) from the pipeline,
-// else the best prices de-vigged (older data files). The backtest shows this beats the model.
+// Margin-free reference probabilities from the pipeline: Pinnacle, or the books' consensus.
+// The backtest shows this beats the model.
 function ref(f) {
-  const m = f.market;
-  if (!m) return null;
-  if (m.fair) return { ...m.fair, label: m.fair.source === 'pinnacle' ? 'Pinnacle' : 'Consenso' };
-  const imp = implied(m);
-  return imp && { ...imp, label: 'Mercado' };
+  const m = f.market?.fair;
+  return m ? { ...m, label: m.source === 'pinnacle' ? 'Pinnacle' : 'Consenso' } : null;
 }
 const when = iso => new Date(iso).toLocaleString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
@@ -144,12 +141,13 @@ function parlayCalc() {
   const O = os.length && os.every(o => o > 1) ? os.reduce((a, b) => a * b, 1) : NaN;
   const sameMatch = [...byMatch.values()].some(m => m.keys.length > 1);
   // Pinnacle reference: only for 1X2 legs from different matches (it has no grid for combos).
-  let pRef = sameMatch ? NaN : 1;
+  let pRef = sameMatch ? NaN : 1, allPin = true;
   for (const l of S.legs) {
     const r = !missing && SIDE[l.key] && ref(fixture(l.fid));
     pRef *= r ? r[SIDE[l.key]] : NaN;
+    allPin &&= r?.label === 'Pinnacle';
   }
-  return { p, pRef, O, missing, sameMatch };
+  return { p, pRef, refLabel: allPin ? 'Pinnacle' : 'consenso', O, missing, sameMatch };
 }
 
 function summaryHtml() {
@@ -170,17 +168,17 @@ function summaryHtml() {
   const evMain = hasRef ? evRef : ev;
   return notes + `<div class="stats">
       <div>Prob. modelo<b>${pct(c.p, 2)}</b></div>
-      <div>Prob. Pinnacle<b>${hasRef ? pct(c.pRef, 2) : '—'}</b></div>
-      <div>Cuota justa (Pinnacle)<b>${hasRef ? fair(c.pRef) : '—'}</b></div>
+      <div>Prob. ${c.refLabel}<b>${hasRef ? pct(c.pRef, 2) : '—'}</b></div>
+      <div>Cuota justa (${c.refLabel})<b>${hasRef ? fair(c.pRef) : '—'}</b></div>
       <div>Cuota combinada<b>${hasOdds ? c.O.toFixed(2) : '—'}</b></div>
-      <div>EV vs Pinnacle${evB(evRef)}</div>
+      <div>EV vs ${c.refLabel}${evB(evRef)}</div>
       <div>EV vs modelo${evB(ev)}</div>
-      <div style="grid-column:1/-1">Apuesta sugerida (¼ Kelly${hasRef ? ', con Pinnacle' : ', con el modelo'})<b>${Number.isFinite(stake) ? '$' + stake.toFixed(2) : '—'}</b></div>
+      <div style="grid-column:1/-1">Apuesta sugerida (¼ Kelly${hasRef ? ', con ' + c.refLabel : ', con el modelo'})<b>${Number.isFinite(stake) ? '$' + stake.toFixed(2) : '—'}</b></div>
     </div>
     <p class="muted small">${!hasOdds ? 'Escribe la cuota decimal de tu casa de apuestas en cada selección.'
       : !hasRef ? 'Sin referencia de Pinnacle (combinaciones del mismo partido o mercados que no sean 1X2): se usa el modelo, que en el backtest es menos preciso.'
-      : evMain > 0 ? 'Tu cuota paga más de lo justo según Pinnacle. EV = prob. × cuota − 1; Kelly ¼ reduce el riesgo.'
-      : 'Tu cuota no supera la línea justa de Pinnacle: la apuesta sugerida es $0.'}</p>`;
+      : evMain > 0 ? `Tu cuota paga más de lo justo según ${c.refLabel}. EV = prob. × cuota − 1; Kelly ¼ reduce el riesgo.`
+      : `Tu cuota no supera la línea justa de ${c.refLabel}: la apuesta sugerida es $0.`}</p>`;
 }
 
 function viewParlay() {

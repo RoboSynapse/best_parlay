@@ -75,14 +75,6 @@ export function prob(grid, keys) {
   return p;
 }
 
-// Market 1X2 odds -> implied probabilities, de-vigged by normalisation.
-export function implied(m) {
-  if (!m || !(m.home > 1 && m.draw > 1 && m.away > 1)) return null;
-  const r = [1 / m.home, 1 / m.draw, 1 / m.away];
-  const s = r[0] + r[1] + r[2];
-  return { home: r[0] / s, draw: r[1] / s, away: r[2] / s, margin: s - 1 };
-}
-
 // Kelly fraction for decimal odds; 0 when there is no edge.
 export function kelly(p, odds) {
   if (!(odds > 1) || !(p > 0)) return 0;

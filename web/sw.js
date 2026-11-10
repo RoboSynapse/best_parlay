@@ -1,5 +1,5 @@
 // Bump VERSION whenever an app-shell file changes, so phones pick up the new version.
-const VERSION = 'bp-v1';
+const VERSION = 'bp-v2';
 const DATA = 'bp-data';  // last good predictions.json, kept across versions
 const SHELL = [
   './', 'index.html', 'style.css', 'app.js', 'model.js', 'manifest.webmanifest',
