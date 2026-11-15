@@ -128,8 +128,8 @@ function toggleLeg(btn) {
   if (i >= 0) S.legs.splice(i, 1);
   else {
     const f = fixture(fid);
-    const o = f.market && SIDE[key] ? f.market[SIDE[key]] : null;
-    S.legs.push({ fid, key, odds: o ? String(o) : '', home: f.home, away: f.away });
+    // no pre-filled odds: the best price is often from a book the user can't bet at
+    S.legs.push({ fid, key, odds: '', home: f.home, away: f.away });
   }
   btn.classList.toggle('on', i < 0);
   save('bp.legs', S.legs);

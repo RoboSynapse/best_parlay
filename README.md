@@ -23,7 +23,6 @@ The pipeline writes it; the app only reads it. The app builds score grids on-dev
     "rps_model": 0.205, "rps_market": 0.201, "logloss_model": 1.03, "logloss_market": 1.02,
     "calibration": [ { "bin": 0.35, "pred": 0.352, "obs": 0.341, "n": 410 } ]
   },
-  "teams": [ { "name": "Toluca", "attack": 0.21, "defence": -0.12, "home": 0.41 } ],
   "fixtures": [
     {
       "id": "espn-123456",
@@ -31,7 +30,6 @@ The pipeline writes it; the app only reads it. The app builds score grids on-dev
       "stage": "regular",
       "home": "Toluca", "away": "America",
       "lambda": 1.62, "mu": 1.05, "rho": -0.08,
-      "p": { "home": 0.48, "draw": 0.26, "away": 0.26 },
       "market": {
         "home": 2.05, "draw": 3.40, "away": 3.60, "source": "best-of-7",
         "fair": { "home": 0.468, "draw": 0.276, "away": 0.256, "source": "pinnacle" }

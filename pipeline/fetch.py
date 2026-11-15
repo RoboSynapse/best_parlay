@@ -105,12 +105,15 @@ def fetch_fixtures(known, days=10, today=None):
         events = _espn({"dates": f"{dates[0]:%Y%m%d}-{dates[-1]:%Y%m%d}"})
     except Exception as e:  # ESPN date ranges have been flaky (HTTP 400): fall back to one call per day
         print(f"ESPN range query failed ({e}); querying day by day")
-        events = []
+        events, failed = [], 0
         for d in dates:
             try:
                 events += _espn({"dates": f"{d:%Y%m%d}"})
             except Exception as e2:
                 print(f"WARNING: ESPN {d}: {e2}")
+                failed += 1
+        if failed == len(dates):  # ESPN down: fail the build so Pages keeps the last good deploy
+            raise RuntimeError("ESPN unreachable for every day") from e
     fixtures, seen = [], set()
     for e in events:
         try:

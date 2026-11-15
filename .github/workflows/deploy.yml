@@ -28,6 +28,8 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install -r requirements.txt
+      - run: python -m pytest -q pipeline
+      - run: node web/model.test.mjs
       - run: python pipeline/build.py
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}   # optional; without it market odds are null

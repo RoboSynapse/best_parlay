@@ -65,3 +65,12 @@ def test_fair_probs_prefers_pinnacle():
     assert f["source"] == "pinnacle" and abs(f["home"] + f["draw"] + f["away"] - 1) < 1e-3
     assert abs(f["home"] - (1 / 2.0) / (1 / 2.0 + 1 / 3.5 + 1 / 4.0)) < 1e-4
     assert fetch.fair_probs({"a": pin, "b": pin})["source"] == "consensus-2"
+
+
+def test_fixtures_raise_when_espn_is_down(monkeypatch):
+    import fetch, pytest
+    def down(params):
+        raise ConnectionError("down")
+    monkeypatch.setattr(fetch, "_espn", down)
+    with pytest.raises(RuntimeError):  # never publish an empty fixture list over good data
+        fetch.fetch_fixtures(["Toluca"], days=2)
