@@ -276,6 +276,32 @@ function viewModelo() {
       <p class="muted small">Dixon–Coles: cada equipo tiene fuerza de ataque y defensa; de ahí salen los goles esperados de cada lado y una tabla de marcadores (Poisson con corrección para 0–0, 1–0, 0–1 y 1–1). Todos los mercados salen de esa tabla.</p></div>` : ''}`;
 }
 
+// ---------- Tutorial ----------
+const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const TOUR = [
+  ['ticket', '¿Qué es un parlay?', 'Juntas varias selecciones en una sola apuesta. Los momios se multiplican: 2.00 × 1.80 = 3.60, así que $100 cobran $360… pero <b>tienes que acertar todas</b>. Si una falla, pierdes la apuesta.'],
+  ['info', 'Probabilidad y momio justo', 'Cada resultado muestra qué tan probable es. El momio justo = 1 ÷ probabilidad (50% → 2.00). Usamos como referencia a Pinnacle, la casa más precisa, sin su margen; «Nuestro modelo» es una segunda opinión.'],
+  ['trend', '¿Qué es «valor»?', `Un momio <span class="value">resaltado</span> paga más de lo justo: «+5% valor» significa que, a la larga, ganarías unos $5 por cada $100 apostados. Sin resaltado, la casa tiene la ventaja.`],
+  ['plus', 'Arma tu parlay', 'Abre un partido y toca un resultado (+) para agregarlo. En la pestaña <b>Parlay</b> escribe el momio de tu casa de apuestas: sirve decimal (1.85) o americano (+150 / −120).'],
+  ['chart', '¿Cuánto apostar?', 'Escribe tu fondo y la app sugiere una apuesta prudente (¼ de Kelly). Si dice $0, no hay ventaja: mejor no apostar. Más selecciones = menos probable acertar. Apuesta solo lo que estés dispuesto a perder.'],
+  ...(installed ? [] : [['ball', 'Instala la app', (/iPhone|iPad/.test(navigator.userAgent)
+    ? 'En Safari toca <b>Compartir</b> y luego <b>«Agregar a inicio»</b>.'
+    : 'En el menú ⋮ del navegador toca <b>«Instalar app»</b> (o «Agregar a pantalla principal»).')
+    + ' Se abre como app y funciona sin conexión con los últimos datos.']]),
+];
+
+function tour(i) {
+  const d = $('#tour'), [ic, title, body] = TOUR[i], last = i === TOUR.length - 1;
+  d.innerHTML = `${icon(ic, 'big')}<h2 id="tour-t">${title}</h2><p>${body}</p>
+    <p class="dots" aria-hidden="true">${TOUR.map((_, j) => `<span${j === i ? ' class="on"' : ''}></span>`).join('')}</p>
+    <p class="muted small">Paso ${i + 1} de ${TOUR.length}</p>
+    <div class="row">${i ? `<button class="ghost" data-act="tour" data-i="${i - 1}">‹ Atrás</button>` : `<button class="ghost" data-act="tour" data-i="-1">Saltar</button>`}
+      <button class="btn" data-act="tour" data-i="${last ? -1 : i + 1}">${last ? '¡Listo!' : 'Siguiente ›'}</button></div>`;
+  if (!d.open) d.showModal();
+  d.querySelector('.btn').focus();  // innerHTML swap drops focus; keep it on the main action
+}
+$('#tour').addEventListener('close', () => save('bp.tour', true));  // Esc, Saltar and ¡Listo! all count as seen
+
 // ---------- Shell ----------
 function updateCount() {
   const c = $('#nlegs'), go = $('#goparlay'), n = S.legs.length;
@@ -302,6 +328,7 @@ document.addEventListener('click', e => {
   if (!t) return;
   const act = t.dataset.act, i = Number(t.dataset.i);
   if (act === 'retry') return location.reload();
+  if (act === 'tour') return i < 0 ? $('#tour').close() : tour(i);
   if (!S.data) return;
   if (act === 'leg') return toggleLeg(t);
   if (act === 'del') S.legs.splice(i, 1);
@@ -364,4 +391,5 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
   $('#badge').hidden = !S.sample;
   if (S.data.generated_at) $('#updated').textContent = 'Actualizado ' + new Date(S.data.generated_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
   render();
+  if (!load('bp.tour', false)) tour(0);
 })();

@@ -101,3 +101,11 @@ details .stats { margin-top: .4rem; }
 .stats b { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .calib { width: 100%; max-width: 360px; display: block; margin: 0 auto; }
 .calib text { fill: var(--muted); font-size: 10px; }
+button.ghost.help { border: 0; color: var(--muted); padding: 0; }
+.tour { max-width: min(26rem, calc(100vw - 2rem)); border: 0; border-radius: 14px; background: var(--card); color: var(--fg); padding: 1.2rem; text-align: center; }
+.tour::backdrop { background: rgb(0 0 0 / .55); }
+.tour .big { width: 3rem; height: 3rem; color: var(--accent); }
+.tour p { text-align: left; }
+.tour .dots, .tour .small { text-align: center; margin: .4rem 0; }
+.dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--line); margin: 0 3px; }
+.dots span.on { background: var(--accent); }
