@@ -2,7 +2,7 @@
 const VERSION = 'bp-v4';
 const DATA = 'bp-data';  // last good predictions.json, kept across versions
 const SHELL = [
-  './', 'index.html', 'style.css', 'app.js', 'model.js', 'manifest.webmanifest',
+  './', 'index.html', 'aprende.html','style.css', 'app.js', 'model.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/ui.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
   'data/predictions.sample.json',
 ];

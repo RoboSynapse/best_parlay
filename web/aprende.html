@@ -1,0 +1,228 @@
+<!-- Contenido de la pestaña Aprende (fragmento que app.js inserta; sin scripts por la CSP). -->
+<h2>Glosario</h2>
+<div class="card">
+<p class="muted small">Las palabras que vas a ver en la app y en las casas de apuestas, explicadas sin rodeos.</p>
+<p class="small"><b>A</b> · <b>B</b> · <b>C</b> · <b>D</b> · <b>E</b> · <b>F</b> · <b>G</b> · <b>J</b> · <b>K</b> · <b>L</b> · <b>M</b> · <b>N</b> · <b>P</b> · <b>R</b> · <b>S</b> · <b>V</b> · <b>Y</b></p>
+<dl class="gloss">
+
+<dt id="g-ambos-anotan">Ambos anotan (sí / no)</dt>
+<dd>Apuestas a si los dos equipos meten al menos un gol cada uno. <span class="muted small">Ej.: 1–1 → gana «Ambos anotan: sí»; 2–0 o 0–0 → gana «Ambos anotan: no».</span> → en la app: pantalla del partido, sección Ambos anotan.</dd>
+
+<dt id="g-apuesta-sugerida">Apuesta sugerida</dt>
+<dd>Cuánto de tu fondo propone apostar la app, con ¼ de la fórmula de Kelly. Si dice <b>$0</b>, tu momio no paga más de lo justo según Pinnacle o el consenso, así que no hay ventaja. Sale «—» si falta un momio o el fondo, si hay selecciones del mismo partido, o si alguna selección no es de Resultado (1X2): para esas solo hay modelo, y el modelo solo no basta. → en la app: pestaña Parlay.</dd>
+
+<dt id="g-backtest">Backtest</dt>
+<dd>Una prueba con partidos pasados: el modelo «predice» cada jornada usando solo los datos que había antes (se reentrena cada semana) y luego se compara con lo que pasó y con el mercado al cierre. Sirve para saber qué tan confiable es, no para garantizar resultados futuros. → en la app: pestaña Modelo.</dd>
+
+<dt id="g-calibracion">Calibración</dt>
+<dd>Qué tan bien coinciden las probabilidades con la realidad: si el modelo dice 40% en muchos partidos, el resultado debería pasar cerca de 40 de cada 100. En la gráfica, un modelo bien calibrado deja los puntos sobre la diagonal. → en la app: pestaña Modelo.</dd>
+
+<dt id="g-cobro-y-ganancia">Cobro y ganancia</dt>
+<dd>El <b>cobro</b> es todo lo que te pagan si aciertas, <b>incluida tu apuesta</b>. La <b>ganancia</b> es el cobro menos lo que apostaste. <span class="muted small">Ej.: $100 a momio 2.50 → cobras $250, ganas $150.</span> La app muestra el cobro («Si aciertas cobras…»).</dd>
+
+<dt id="g-consenso">Consenso</dt>
+<dd>Cuando Pinnacle no tiene momios de un partido, la app usa el promedio de las casas de apuestas, sin su margen, como referencia. Se lee igual que la fila de Pinnacle: son probabilidades. → en la app: tarjetas de Partidos y pestaña Parlay.</dd>
+
+<dt id="g-doble-oportunidad">Doble oportunidad</dt>
+<dd>Apuestas a dos de los tres resultados a la vez: <b>1X</b> (local o empate), <b>X2</b> (empate o visita) o <b>12</b> (cualquiera gana, sin empate). Aciertas más seguido, pero el momio es más bajo. → en la app: pantalla del partido, sección Doble oportunidad.</dd>
+
+<dt id="g-empate">Empate</dt>
+<dd>El partido termina igualado (la «X» del 1X2). Si apostaste «Gana local» o «Gana visita» y hay empate, <b>pierdes</b>: no te devuelven nada. Las apuestas «1X» y «X2» de Doble oportunidad sí ganan con empate.</dd>
+
+<dt id="g-favorito">Favorito y no favorito</dt>
+<dd>El favorito es quien tiene más probabilidad de ganar y por eso paga menos. El no favorito (en inglés, underdog) paga más porque es menos probable. <span class="muted small">Ej.: momio 1.60 ≈ 62.5% (favorito); momio 5.00 = 20% (no favorito).</span></dd>
+
+<dt id="g-fondo">Fondo (bankroll)</dt>
+<dd>El dinero que apartas <b>solo</b> para apostar y que puedes perder sin que te afecte. La apuesta sugerida es un porcentaje de este fondo. La app lo guarda solo en tu teléfono. → en la app: pestaña Parlay, «Tu fondo para apostar ($)».</dd>
+
+<dt id="g-ganancia-esperada">Ganancia esperada (valor esperado)</dt>
+<dd>Lo que ganarías o perderías <b>en promedio</b> por cada $100 si hicieras la misma apuesta muchas veces, suponiendo que la probabilidad es correcta: probabilidad × momio − 1. Una apuesta en particular igual se gana o se pierde completa. <span class="muted small">Ej.: 30% × 3.60 = 1.08 → +8% (≈ $8 por cada $100); 25% × 3.60 = 0.90 → −10%.</span> → en la app: pestaña Parlay.</dd>
+
+<dt id="g-juego-responsable">Juego responsable</dt>
+<dd>Solo para mayores de 18. Apuesta solo lo que estés dispuesto a perder, no intentes recuperar pérdidas apostando más y, si apuestas, hazlo en casas con permiso de la SEGOB. ¿Necesitas ayuda? Línea de la Vida <b>800 911 2000</b> (gratuita, 24 h).</dd>
+
+<dt id="g-kelly">Kelly (¼ de Kelly)</dt>
+<dd>Una fórmula que calcula qué parte del fondo apostar según tu ventaja: (probabilidad × momio − 1) ÷ (momio − 1). Si no hay ventaja, da cero. La app usa solo la cuarta parte, porque las probabilidades son estimaciones y la fórmula completa sube y baja demasiado. <span class="muted small">Ej.: 45% a momio 2.40 → Kelly ≈ 5.7%; ¼ ≈ 1.43%; con un fondo de $1,000 → $14.29.</span> → en la app: pestaña Parlay.</dd>
+
+<dt id="g-liguilla">Liguilla</dt>
+<dd>La fase final de cada torneo de la Liga MX, con eliminatorias de ida y vuelta. Las apuestas de Resultado (1X2) se liquidan normalmente con el marcador de los 90 minutos más el tiempo de compensación; no cuentan tiempos extra, penales ni quién pasa a la siguiente ronda. Confírmalo en las reglas de tu casa.</dd>
+
+<dt id="g-linea-de-cierre">Línea de cierre</dt>
+<dd>El último momio antes de que empiece el partido. Se considera la estimación más precisa del mercado, porque ya incluye alineaciones y el dinero apostado; el backtest compara el modelo contra ella («Mercado (cierre)»). → en la app: pestaña Modelo.</dd>
+
+<dt id="g-local-y-visita">Local y visita</dt>
+<dd>El local juega en su estadio y se escribe primero («Local vs Visita»); el visitante es el otro. Jugar en casa suele dar una pequeña ventaja, y el modelo la toma en cuenta. → en la app: columnas Local / Empate / Visita en Partidos.</dd>
+
+<dt id="g-margen">Margen de la casa (vig o juice)</dt>
+<dd>La comisión que la casa de apuestas mete en sus momios: paga un poco menos de lo justo y por eso, si sumas las probabilidades implícitas de todos los resultados, te da más de 100%. <span class="muted small">Ej.: Más y Menos de 2.5 a 1.91 cada uno → 52.4% + 52.4% ≈ 104.7%, un margen de casi 5%; el momio justo sería 2.00.</span></dd>
+
+<dt id="g-mas-menos">Más / Menos de goles</dt>
+<dd>Apuestas al total de goles de los dos equipos: Más o Menos de 1.5, 2.5 o 3.5. Como la línea termina en .5, nunca queda exacta: no hay «push» (devolución por empate con la línea), algo que solo pasa con líneas enteras como 2. <span class="muted small">Ej.: 2–1 = 3 goles → gana «Más de 2.5»; 1–1 = 2 goles → gana «Menos de 2.5».</span> Si un partido se suspende o se pospone, la apuesta puede quedar <b>anulada</b> según las reglas de tu casa. → en la app: pantalla del partido, sección Goles.</dd>
+
+<dt id="g-mejor-momio">Mejor momio (alguna casa)</dt>
+<dd>El momio más alto que paga alguna de las casas de las que tenemos datos. Muchas veces es de una casa extranjera donde quizá no puedes apostar, por eso la app no lo copia a tu parlay: escribe el de tu casa. → en la app: tarjetas de Partidos.</dd>
+
+<dt id="g-mismo-partido">Mismo partido (correlación)</dt>
+<dd>Si pones en el parlay varias selecciones del mismo partido, están relacionadas (por ejemplo, si gana el local es más fácil que haya goles). La app calcula la probabilidad junta con la tabla de marcadores, pero no calcula ganancia ni apuesta sugerida, porque la casa no paga simplemente los momios multiplicados (y muchas ni aceptan esa apuesta). → en la app: pestaña Parlay.</dd>
+
+<dt id="g-momio">Momio (cuota)</dt>
+<dd>Lo que paga una apuesta. En México se dice «momio» (en otros países, «cuota»), y la app siempre dice momio. El <b>decimal</b> (2.50) es tu cobro por cada $1. El <b>americano</b>: +150 = ganas $150 por cada $100; −120 = apuestas $120 para ganar $100. <span class="muted small">Ej.: +150 = 2.50; −120 ≈ 1.83; −200 = 1.50.</span> → en la app: pestaña Parlay, que acepta los dos formatos.</dd>
+
+<dt id="g-momio-combinado">Momio combinado</dt>
+<dd>El momio de todo el parlay: los momios decimales de cada selección multiplicados. <span class="muted small">Ej.: 2.00 × 1.80 = 3.60; con una tercera a 1.50 → 5.40. $100 a 3.60 cobran $360.</span> → en la app: pestaña Parlay, «Ver detalle».</dd>
+
+<dt id="g-momio-justo">Momio justo</dt>
+<dd>El momio sin margen de la casa: 1 ÷ probabilidad. Si tu casa paga más que el momio justo, hay valor según esa probabilidad. <span class="muted small">Ej.: 50% → 2.00; 40% → 2.50.</span> → en la app: pantalla del partido (uno de nuestro modelo y otro de Pinnacle o Consenso).</dd>
+
+<dt id="g-nuestro-modelo">Nuestro modelo</dt>
+<dd>Las probabilidades que calcula la app (modelo Dixon–Coles): a partir del ataque y la defensa de cada equipo estima sus <b>goles esperados</b> y una tabla de marcadores, y de ahí salen todos los mercados. Es una segunda opinión: en el backtest el mercado ha predicho un poco mejor. → en la app: fila «Nuestro modelo» y pestaña Modelo.</dd>
+
+<dt id="g-parlay">Parlay (combinada)</dt>
+<dd>Una apuesta que junta varias selecciones; en cambio, una <b>apuesta sencilla</b> lleva solo una. Los momios se multiplican y pagan más, pero <b>tienes que acertar todas</b>: si una falla, pierdes la apuesta completa. Además, cada selección que agregas baja la probabilidad de acertar y suma el margen de la casa. → en la app: pestaña Parlay.</dd>
+
+<dt id="g-pinnacle">Pinnacle</dt>
+<dd>Una casa de apuestas internacional conocida por cobrar márgenes bajos. La app le quita el margen a sus momios actuales y usa esas probabilidades como referencia principal; no es una recomendación para apostar ahí. La fila «Pinnacle» muestra porcentajes, no momios. → en la app: tarjetas de Partidos y pestaña Parlay.</dd>
+
+<dt id="g-probabilidad-de-acertar">Probabilidad de acertar</dt>
+<dd>La probabilidad de que salgan <b>todas</b> las selecciones de tu parlay, según Pinnacle o el consenso (o «según nuestro modelo» si no hay referencia). Si los partidos son distintos, se multiplican. <span class="muted small">Ej.: 50% × 55% = 27.5%; tres selecciones de 50% → 12.5%.</span> → en la app: pestaña Parlay.</dd>
+
+<dt id="g-probabilidad-implicita">Probabilidad implícita</dt>
+<dd>La probabilidad que «esconde» un momio: 1 ÷ momio decimal. Incluye el margen de la casa, así que es un poco más alta que la probabilidad real. <span class="muted small">Ej.: momio 2.50 (o +150) → 40%.</span></dd>
+
+<dt id="g-resultado-1x2">Resultado (1X2)</dt>
+<dd>El mercado básico: <b>1</b> = gana el local, <b>X</b> = empate, <b>2</b> = gana la visita, con el marcador de los 90 minutos más la compensación. En la app aparecen como «Gana Monterrey», «Empate» y «Gana [visita]». → en la app: pantalla del partido, sección Resultado (1X2).</dd>
+
+<dt id="g-resultado-goles">Resultado + goles</dt>
+<dd>Dos condiciones del <b>mismo partido</b> en una sola selección, por ejemplo «Gana Tigres y Más de 2.5 goles»: ganas solo si se cumplen las dos. En otros lugares se le dice «combinada», palabra que también se usa para decir parlay. → en la app: pantalla del partido, sección Resultado + goles.</dd>
+
+<dt id="g-rps">RPS</dt>
+<dd>Siglas en inglés de Ranked Probability Score: mide el error de las probabilidades de local, empate y visita, y castiga menos fallar por poco (decir empate cuando ganó el local) que fallar por mucho. Mientras menor, mejor; el log loss de la misma tabla es otra medida de error que también se lee así. → en la app: pestaña Modelo.</dd>
+
+<dt id="g-seleccion">Selección (pierna)</dt>
+<dd>Cada resultado que eliges dentro de un parlay, por ejemplo «Gana Monterrey». En inglés se le dice leg, por eso también se oye «pierna». → en la app: botón + de cada resultado en la pantalla del partido.</dd>
+
+<dt id="g-valor">Valor (+X% valor)</dt>
+<dd>Un momio tiene valor cuando paga más de lo justo según la referencia: probabilidad × momio &gt; 1. El porcentaje es la ventaja estimada a la larga, no una garantía de ganar esa apuesta. <span class="muted small">Ej.: Pinnacle 45% y momio 2.40 → 0.45 × 2.40 = 1.08 → «+8% valor».</span> → en la app: momios resaltados en Partidos y en la pantalla del partido.</dd>
+
+<dt id="g-varianza">Varianza (rachas)</dt>
+<dd>La suerte de corto plazo: aunque una apuesta tenga valor, puedes perder muchas veces seguidas, sobre todo con parlays. <span class="muted small">Ej.: un parlay con 25% de probabilidad se pierde 5 veces seguidas cerca de 24% de las veces (0.75⁵ ≈ 0.237).</span> Por eso conviene apostar poco de tu fondo cada vez.</dd>
+
+<dt id="g-ya-comenzo">Ya comenzó</dt>
+<dd>El partido ya empezó. Sus probabilidades son de antes del partido y no sirven para apostar en vivo, así que ya no puedes agregarlo al parlay y la app no sugiere apuesta. → en la app: aviso en Partidos, en el partido y en el Parlay.</dd>
+
+</dl>
+</div>
+
+<h2>Cómo funciona el modelo</h2>
+<p class="muted small">Las matemáticas detrás de la app, sin fórmulas de universidad. Usamos como ejemplo un partido de los datos de muestra: <b>Monterrey vs Pachuca</b>.</p>
+
+<details class="card"><summary>1. De goles esperados a probabilidades</summary>
+<p>Cada equipo tiene un número de <b>ataque</b> (cuántos goles mete) y uno de <b>defensa</b> (cuántos recibe: negativo = buena defensa). Jugar en casa suma una <b>localía</b> general, más un extra propio de cada equipo. Con eso salen los goles esperados:</p>
+<p><code>λ = e^(c + localía + extra_local + ataque_local + defensa_visita)</code><br><code>μ = e^(c + ataque_visita + defensa_local)</code></p>
+<p>λ son los goles esperados del local y μ los del visitante (<code>c</code> es el nivel medio de la liga). Luego la <b>distribución de Poisson</b> dice qué tan seguido sale cada número de goles. Ejemplo con λ = 1.97 para Monterrey: <b>de cada 100 partidos así</b>, Monterrey anota 0 goles en unos 14, 1 gol en 27, 2 goles en 27 y 3 goles en 18.</p>
+<p>Combinando los dos equipos sale la <b>tabla de marcadores</b> (hasta 10 goles por lado). El modelo Dixon–Coles corrige un poco los marcadores bajos (0-0, 1-0, 0-1, 1-1) con un número llamado <b>ρ</b> (rho), porque en el futbol real el 0-0 y el 1-1 salen algo más de lo que da Poisson solo.</p>
+<p>Ejemplo: λ = 1.97, μ = 1.30, ρ = −0.08. Probabilidad de cada marcador (%), local en filas:</p>
+<table>
+<tr><th>Monterrey \ Pachuca</th><th>0</th><th>1</th><th>2</th><th>3</th></tr>
+<tr><td>0</td><td>4.6</td><td>4.2</td><td>3.2</td><td>1.4</td></tr>
+<tr><td>1</td><td>6.7</td><td>10.5</td><td>6.3</td><td>2.7</td></tr>
+<tr><td>2</td><td>7.4</td><td>9.6</td><td>6.2</td><td>2.7</td></tr>
+<tr><td>3</td><td>4.8</td><td>6.3</td><td>4.1</td><td>1.8</td></tr>
+</table>
+<p class="muted small">Sin la corrección ρ, el 0-0 sería 3.8% y el 1-1 9.7%.</p>
+<p>Cada mercado es solo <b>sumar casillas</b> de la tabla:</p>
+<ul>
+<li>Gana Monterrey (local arriba): <b>52.2%</b>. Empate (la diagonal): <b>23.4%</b>. Gana Pachuca: <b>24.4%</b>.</li>
+<li>Más de 2.5 goles (3 o más en total): <b>63.5%</b>.</li>
+<li>Ambos anotan: sí (los dos con 1 o más): <b>63.4%</b>.</li>
+</ul>
+</details>
+
+<details class="card"><summary>2. Cómo aprende el modelo</summary>
+<p>El modelo busca los números de ataque, defensa y localía que hacen <b>más probables los marcadores que sí ocurrieron</b>. Se vuelve a ajustar cada día con los resultados nuevos.</p>
+<ul>
+<li><b>Lo reciente pesa más.</b> Cada partido pesa <code>w = e^(−ξ × días)</code>, con ξ = 0.003. Eso da una <b>vida media de 231 días</b>: un partido de hace unos 7.5 meses cuenta la mitad que uno de ayer; uno de hace un año, un tercio (0.33).</li>
+<li><b>Ventana de 3 años.</b> Solo usa partidos de los últimos 1,095 días. Los más viejos ya casi no pesaban (0.04).</li>
+<li><b>Un «freno».</b> Con pocos partidos, un equipo podría parecer buenísimo por suerte. El modelo jala cada ataque y defensa hacia el promedio de la liga, y jala aún más fuerte el extra de localía de cada equipo. Solo se aleja del promedio cuando los datos lo justifican.</li>
+</ul>
+<p>Ejemplo: en los ajustes recientes la localía general ronda 0.23, o sea que jugar en casa multiplica los goles esperados por <code>e^0.23 ≈ 1.25</code> (unos 25% más), antes del extra de cada equipo. Y ρ ronda −0.05. (Los valores del día están en la pestaña Modelo.)</p>
+</details>
+
+<details class="card"><summary>3. Cómo sabemos si sirve</summary>
+<p>Hicimos un <b>backtest</b>: semana por semana, el modelo se ajusta solo con los 3 años anteriores y predice los partidos de esa semana, <b>sin ver el futuro</b>. Luego comparamos contra lo que pasó y contra el mercado (momios de Pinnacle al cierre, o el promedio de casas cuando Pinnacle no está, quitando el margen).</p>
+<ul>
+<li><b>RPS</b>: mide qué tan lejos quedaste del resultado, respetando el orden local–empate–visita (si diste 60% al local y fue empate, te castiga menos que si ganó la visita). 0 sería perfecto; menos es mejor.</li>
+<li><b>Log loss</b>: mide la «sorpresa»: <code>−ln(probabilidad que diste a lo que pasó)</code>. Dar 50% cuesta 0.69; dar 10% cuesta 2.30. Menos es mejor.</li>
+<li><b>Calibración</b>: cuando el modelo dice «45%», ¿pasa 45 de cada 100 veces?</li>
+</ul>
+<p>Resultado real (2,451 partidos, jul 2019 – nov 2026):</p>
+<table>
+<tr><th></th><th>RPS</th><th>Log loss</th></tr>
+<tr><td>Nuestro modelo</td><td>0.2118</td><td>1.0269</td></tr>
+<tr><td>Mercado (cierre)</td><td>0.2059</td><td>1.0083</td></tr>
+</table>
+<p>Calibración: cuando el modelo dio entre 40% y 50% (969 casos, 44.7% en promedio), pasó el 45.8%. Va bien en general; arriba de 80% hay solo 9 casos, muy pocos para concluir.</p>
+<p class="note">El mercado predice <b>un poco mejor</b> que nuestro modelo. Por eso la app usa Pinnacle (o el Consenso) como referencia, y «Nuestro modelo» es una segunda opinión. Ojo: ξ y el extra de localía se eligieron probando 10 combinaciones con estos mismos datos, así que el resultado del modelo es un poco optimista.</p>
+</details>
+
+<details class="card"><summary>4. Del momio a la probabilidad</summary>
+<p>Un momio decimal ya trae escondida una probabilidad: <code>probabilidad implícita = 1 ÷ momio</code>. Pero si sumas las tres opciones (local, empate, visita) da más de 100%: esa diferencia es el <b>margen de la casa</b>, su ganancia.</p>
+<p>Para quitarlo, la app <b>normaliza</b>: divide cada probabilidad entre la suma, para que sumen 100%. El <b>momio justo</b> es <code>1 ÷ probabilidad</code>, el momio que pagaría una casa sin margen. Usamos Pinnacle si tiene el partido; si no, el <b>Consenso</b>: el promedio de las probabilidades sin margen de todas las casas.</p>
+<p>Ejemplo (momios inventados para ilustrar):</p>
+<table>
+<tr><th></th><th>Momio</th><th>1 ÷ momio</th><th>Sin margen</th><th>Momio justo</th></tr>
+<tr><td>Local</td><td>1.85</td><td>54.1%</td><td>52.8%</td><td>1.89</td></tr>
+<tr><td>Empate</td><td>4.35</td><td>23.0%</td><td>22.5%</td><td>4.45</td></tr>
+<tr><td>Visita</td><td>3.95</td><td>25.3%</td><td>24.7%</td><td>4.04</td></tr>
+<tr><td>Suma</td><td></td><td>102.4%</td><td>100%</td><td></td></tr>
+</table>
+<p>Aquí el margen es de 2.4%.</p>
+<p><b>Momios americanos</b>: si es positivo, <code>decimal = 1 + A ÷ 100</code> (+150 → 2.50); si es negativo, <code>decimal = 1 + 100 ÷ |A|</code> (−120 → 1.83). La app hace esta conversión sola.</p>
+</details>
+
+<details class="card"><summary>5. Valor y ganancia esperada</summary>
+<p>Un momio tiene <b>valor</b> cuando paga más de lo justo. La app lo mide así:</p>
+<p><code>valor = p_referencia × momio − 1</code></p>
+<p>donde <code>p_referencia</code> es la probabilidad sin margen de Pinnacle (o el Consenso). Si sale positivo, es la <b>Ganancia esperada</b>: lo que ganarías en promedio por cada $100 si hicieras esa apuesta muchas veces, <b>suponiendo que la probabilidad es correcta</b>. No es lo que ganas en una apuesta: esa la ganas o la pierdes.</p>
+<p>Ejemplo: Pinnacle le da 52.75% a Monterrey.</p>
+<ul>
+<li>Con el mejor momio de los datos, 1.83: <code>0.5275 × 1.83 − 1 = −3.5%</code>. Sin valor.</li>
+<li>Si tu casa diera 2.00: <code>0.5275 × 2.00 − 1 = +5.5%</code>. Unos $5.50 por cada $100, a la larga.</li>
+</ul>
+<p class="note">«Mejor momio (alguna casa)» es el más alto entre todas las casas que consultamos (de EE. UU., Europa y Reino Unido). Casi siempre es una casa extranjera que quizá no puedas usar. Lo que cuenta es el momio de <b>tu</b> casa: escríbelo en la pestaña Parlay.</p>
+</details>
+
+<details class="card"><summary>6. Parlays</summary>
+<p>Si las selecciones son de <b>partidos distintos</b>, se tratan como independientes: la probabilidad del parlay es el <b>producto</b> de las probabilidades, y el momio combinado es el producto de los momios.</p>
+<p>Por eso cada selección extra baja mucho la probabilidad. Tres selecciones de 50% cada una: <code>0.5 × 0.5 × 0.5 = 12.5%</code>, o sea, aciertas 1 de cada 8 veces.</p>
+<p>Si son del <b>mismo partido</b>, no son independientes: si Monterrey gana, es más fácil que haya muchos goles. Entonces el modelo suma directamente las casillas de la tabla donde se cumplen las dos cosas.</p>
+<ul>
+<li>Gana Monterrey y Más de 2.5 goles: <b>38.2%</b> juntas, contra 33.1% si las multiplicaras.</li>
+<li>Gana Monterrey y Ambos anotan: sí: <b>29.6%</b> juntas, contra 33.1% multiplicando.</li>
+</ul>
+<p>Con selecciones del mismo partido la app no calcula ganancia ni apuesta sugerida: la casa no paga el producto de los momios en ese caso (muchas ni lo aceptan), así que no sabemos qué momio te darían.</p>
+</details>
+
+<details class="card"><summary>7. Cuánto apostar</summary>
+<p>La <b>fórmula de Kelly</b> dice qué parte de tu fondo apostar para que crezca lo más rápido posible a la larga:</p>
+<p><code>f = (p × momio − 1) ÷ (momio − 1)</code></p>
+<p>Si no hay valor, da 0. Pero <code>p</code> es una estimación, y si te equivocas, Kelly completo apuesta de más y tu fondo sube y baja muchísimo. Por eso la app sugiere solo <b>¼ de Kelly</b>: creces un poco más lento, con muchos menos sustos.</p>
+<p>La app solo sugiere apuesta cuando <b>todas</b> las selecciones tienen referencia del mercado (resultado 1X2 de partidos distintos, con Pinnacle o Consenso), y usa esa probabilidad, no la de nuestro modelo.</p>
+<p>Ejemplo: p = 52.75%, momio 2.00, fondo de $1,000.</p>
+<ul>
+<li><code>f = (0.5275 × 2.00 − 1) ÷ (2.00 − 1) = 5.5%</code></li>
+<li>¼ de Kelly: 1.375% → apuesta sugerida <b>$13.75</b>.</li>
+</ul>
+<p class="note">Aun con valor, las rachas malas son normales. Si ganas el 45% de tus apuestas, perder 5 seguidas pasa un 5% de las veces; y en 100 apuestas, la probabilidad de tener al menos una racha de 5 derrotas seguidas es de 92%.</p>
+</details>
+
+<details class="card"><summary>8. Límites</summary>
+<ul>
+<li>Son <b>probabilidades, no certezas</b>. Un 70% falla 3 de cada 10 veces.</li>
+<li>El modelo solo ve marcadores pasados. <b>No sabe</b> de lesiones, alineaciones, expulsiones, clima, cambios de técnico ni partidos de vuelta.</li>
+<li>Los datos se actualizan una vez al día; los momios pueden haber cambiado desde entonces.</li>
+<li>Las probabilidades son de antes del partido: no sirven para apostar en vivo.</li>
+<li>En el backtest, el mercado predice mejor que nuestro modelo. Ninguna herramienta garantiza ganancias.</li>
+</ul>
+<p class="note"><b>Solo mayores de 18.</b> Juega responsable: apuesta solo lo que estés dispuesto a perder.</p>
+</details>

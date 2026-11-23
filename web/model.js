@@ -51,7 +51,7 @@ export const GROUPS = [
   ['Doble oportunidad', ['1X', 'X2', '12']],
   ['Goles', ['o15', 'u15', 'o25', 'u25', 'o35', 'u35']],
   ['Ambos anotan', ['by', 'bn']],
-  ['Combinadas', COMBOS],
+  ['Resultado + goles', COMBOS],  // not "Combinadas": in Mexico that word also means a parlay
 ];
 
 // A key is one base market or several joined with '+' (all must hold).

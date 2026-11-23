@@ -62,7 +62,7 @@ function viewPartidos() {
   const now = Date.now();
   const anyMarket = list.some(f => f.market);
   return '<h1>Próximos partidos</h1>'
-    + (anyMarket ? '<p class="muted small"><span class="value">Resaltado</span> = ese momio paga más de lo justo. El % es la ventaja estimada.</p>' : '')
+    + (anyMarket ? '<p class="muted small"><span class="value">Resaltado</span> = ese momio paga más de lo justo. El % es la ganancia esperada si consigues ese momio.</p>' : '')
     + list.map(f => {
     const g = grid(f);
     const p = ['1', 'X', '2'].map(k => prob(g, [k]));
@@ -97,7 +97,7 @@ function marketButton(f, g, k) {
   }
   return `<button class="mk${on ? ' on' : ''}" data-act="leg" data-fid="${esc(f.id)}" data-key="${k}"${started(f) ? ' disabled' : ''}>
     <span class="lbl">${icon('plus', 'add')}${icon('check', 'added')}${esc(marketLabel(k, f.home, f.away))}</span>
-    <span class="nums"><b>${pct(p)}</b> · momio justo ${fair(p)}</span>${extra}</button>`;
+    <span class="nums">Modelo <b>${pct(p)}</b> (momio justo ${fair(p)})</span>${extra}</button>`;
 }
 
 function viewPartido(id) {
@@ -214,7 +214,7 @@ function summaryHtml() {
       : c.sameMatch ? ''
       : !hasRef ? 'Sin referencia de Pinnacle para alguna selección (mercados que no son 1X2 o partido sin momios): la probabilidad es de nuestro modelo, que en el backtest es menos preciso que el mercado, así que no sugerimos apuesta.'
       : evMain > 0 ? `Tu momio paga más de lo justo según ${c.refLabel}.`
-      : `Tu momio no supera la línea justa de ${c.refLabel}: la apuesta sugerida es $0.`}</p>
+      : `Tu momio no supera el momio justo de ${c.refLabel}: la apuesta sugerida es $0.`}</p>
     <p class="muted small">Ganancia esperada = lo que ganarías en promedio por cada $100 apostados si hicieras esta apuesta muchas veces (+6% ≈ $6), suponiendo que la probabilidad es correcta. La apuesta sugerida usa ¼ de la fórmula de Kelly: más cuando hay ventaja, $0 cuando no. Solo mayores de 18; apuesta solo lo que estés dispuesto a perder.</p>`;
 }
 
@@ -291,9 +291,9 @@ function viewModelo() {
       <tr><td>Ventaja de local (log)</td><td>${m.home_adv ?? '—'}</td></tr>
       <tr><td>ρ (ajuste de marcadores bajos)</td><td>${m.rho ?? '—'}</td></tr>
       <tr><td>ξ (peso de partidos recientes)</td><td>${m.xi ?? '—'}</td></tr></table>
-      <p class="muted small">Dixon–Coles: cada equipo tiene fuerza de ataque y defensa; de ahí salen los goles esperados de cada lado y una tabla de marcadores (Poisson con corrección para 0–0, 1–0, 0–1 y 1–1). Todos los mercados salen de esa tabla.</p></div>` : ''}
+      <p class="muted small">Dixon–Coles: cada equipo tiene fuerza de ataque y defensa; de ahí salen los goles esperados de cada lado y una tabla de marcadores (Poisson con corrección para 0–0, 1–0, 0–1 y 1–1). Todos los mercados salen de esa tabla. Explicación paso a paso en <a href="#/aprende">Aprende</a>.</p></div>` : ''}
     <div class="card legal"><h2>Aviso</h2>
-      <p>Best Parlay es un proyecto personal, gratuito y sin fines de lucro, solo con fines informativos y de entretenimiento. <b>No es una casa de apuestas</b>: no acepta apuestas, no maneja dinero y no tiene relación con ninguna casa de apuestas, liga o club. Las probabilidades son estimaciones y pueden fallar; nada de lo que se muestra es una recomendación ni asesoría financiera o profesional.</p>
+      <p>Best Parlay es un proyecto personal, gratuito y sin fines de lucro, solo con fines informativos y de entretenimiento. <b>No es una casa de apuestas</b>: no acepta apuestas, no maneja dinero y no tiene relación con ninguna casa de apuestas, liga o club. Las probabilidades son estimaciones y pueden fallar; la «apuesta sugerida» es solo un cálculo (¼ de Kelly), no una recomendación ni asesoría financiera o profesional.</p>
       <p><b>Solo para mayores de 18 años.</b> Las apuestas pueden causar adicción: juega con responsabilidad y solo con lo que estés dispuesto a perder. Si decides apostar, hazlo únicamente en casas con permiso de la SEGOB. ¿Necesitas ayuda? Línea de la Vida <a href="tel:8009112000">800 911 2000</a> (gratuita, 24 h).</p>
       <h3>Fuentes y marcas</h3>
       <p>Datos: football-data.co.uk (resultados y momios históricos) y The Odds API (calendario y momios). Liga MX, los nombres de los clubes, Pinnacle y demás marcas pertenecen a sus respectivos dueños y se mencionan solo como referencia, sin afiliación.</p>
@@ -301,11 +301,25 @@ function viewModelo() {
       <p>Sin cuentas, cookies ni analítica. Tu fondo y tu parlay se guardan solo en tu dispositivo. El sitio está alojado en GitHub Pages, que puede registrar datos técnicos de acceso (como tu IP) conforme a su propia política de privacidad.</p></div>`;
 }
 
+// ---------- Aprende ----------
+// Static Spanish content (maths guide + glossary) lives in aprende.html, fetched once and cached by the SW.
+function viewAprende() {
+  if (S.learn == null) {
+    S.learn = '';
+    fetch('aprende.html').then(r => r.ok ? r.text() : Promise.reject())
+      .then(t => { S.learn = t; if (location.hash === '#/aprende') render(); })
+      .catch(() => { S.learn = null; });
+  }
+  return `<h1>Aprende</h1>
+    <p class="muted small">Cómo salen los números de la app y qué significa cada término. ¿Prefieres lo básico? <button class="ghost" data-act="tour" data-i="0">Ver el tutorial</button></p>
+    ${S.learn || '<p class="muted">Cargando…</p>'}`;
+}
+
 // ---------- Tutorial ----------
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 const TOUR = [
   ['ticket', '¿Qué es un parlay?', 'Juntas varias selecciones en una sola apuesta. Los momios se multiplican: 2.00 × 1.80 = 3.60, así que $100 cobran $360… pero <b>tienes que acertar todas</b>. Si una falla, pierdes la apuesta.'],
-  ['info', 'Probabilidad y momio justo', 'Cada resultado muestra qué tan probable es. El momio justo = 1 ÷ probabilidad (50% → 2.00). Usamos como referencia los momios de Pinnacle sin su margen; «Nuestro modelo» es una segunda opinión.'],
+  ['info', 'Probabilidad y momio justo', 'Cada resultado muestra qué tan probable es. El momio justo = 1 ÷ probabilidad (50% → 2.00). Usamos como referencia los momios de Pinnacle sin su margen (o el consenso de las casas si Pinnacle no cotiza); «Nuestro modelo» es una segunda opinión.'],
   ['trend', '¿Qué es «valor»?', `Un momio <span class="value">resaltado</span> paga más de lo justo: «+5% valor» significa que, si consigues ese momio, a la larga ganarías unos $5 por cada $100 apostados (si la referencia acierta). Ese momio suele estar en una casa extranjera: compáralo con el de tu casa en la pestaña Parlay.`],
   ['plus', 'Arma tu parlay', 'Abre un partido y toca un resultado (+) para agregarlo. En la pestaña <b>Parlay</b> escribe el momio de tu casa de apuestas: sirve decimal (1.85) o americano (+150 / −120).'],
   ['chart', '¿Cuánto apostar?', 'Escribe tu fondo y la app sugiere una apuesta prudente (¼ de Kelly). Si dice $0, no hay ventaja: mejor no apostar. Más selecciones = menos probable acertar. <b>Solo mayores de 18.</b> Apuesta solo lo que estés dispuesto a perder.'],
@@ -346,6 +360,7 @@ function render() {
   }
   else if (h === '/parlay') { html = viewParlay(); tab = 'parlay'; }
   else if (h === '/modelo') { html = viewModelo(); tab = 'modelo'; }
+  else if (h === '/aprende') { html = viewAprende(); tab = 'aprende'; }
   else html = viewPartidos();
   const sample = S.sample ? `<p class="note">${icon('info')}<b>Datos de ejemplo inventados</b> (no se pudieron cargar los reales). No los uses para apostar.</p>` : '';
   view.innerHTML = sample + html + FOOT;

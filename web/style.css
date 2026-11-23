@@ -112,3 +112,6 @@ button.ghost.help { border: 0; color: var(--muted); padding: 0; }
 .mk:disabled { opacity: .5; cursor: not-allowed; }
 .foot { margin: 1.2rem 0 .4rem; text-align: center; }
 .legal p { font-size: .88rem; }
+.gloss dt { font-weight: 700; margin-top: .7rem; }
+.gloss dd { margin: .15rem 0 0; }
+details.card > summary { cursor: pointer; }
