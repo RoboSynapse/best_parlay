@@ -8,7 +8,7 @@
     <path d="M12 6.5C10 5 7.5 4.5 4 4.5v14c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2v-14c-3.5 0-6 .5-8 2Z"/>
     <path d="M12 6.5v14"/>
   </symbol>
-  <symbol id="calendar"viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+  <symbol id="calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
     <rect x="3.5" y="5" width="17" height="15.5" rx="2"/>
     <path d="M3.5 9.5h17M8 3v4M16 3v4"/>
     <path d="M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 17h.01M12 17h.01" stroke-width="2.25"/>

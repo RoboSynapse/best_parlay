@@ -86,3 +86,8 @@ export function kelly(p, odds) {
   if (!(odds > 1) || !(p > 0)) return 0;
   return Math.max(0, (p * odds - 1) / (odds - 1));
 }
+
+// Did a market win with final score hg–ag? Every '+' part must hold.
+export function settle(key, hg, ag) {
+  return key.split('+').every(k => BASE[k][0](hg, ag));
+}

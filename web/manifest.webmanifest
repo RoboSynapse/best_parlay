@@ -1,14 +1,14 @@
 {
   "name": "Best Parlay",
   "short_name": "Parlay",
-  "description": "Probabilidades de la Liga MX y armador de parlays",
+  "description": "Probabilidades de fútbol (Liga MX y Europa) y armador de parlays",
   "lang": "es-MX",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1412",
-  "theme_color": "#14532d",
+  "background_color": "#0a1417",
+  "theme_color": "#0d3a26",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

@@ -1,10 +1,11 @@
 """Walk-forward backtest: weekly refit on the previous 3 years, predict the coming week.
 
-Grid over xi and per-team home advantage; best by RPS is written to pipeline/backtest_result.json
-(committed, read by build.py).  Usage: python pipeline/backtest.py
+Grid over xi and per-team home advantage; best by RPS is written to pipeline/backtests/<league>.json
+(committed, read by build.py).  Usage: python pipeline/backtest.py epl   (league codes: fetch.LEAGUES)
 """
 import datetime as dt
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -15,7 +16,7 @@ import model
 
 START = dt.date(2019, 7, 1)  # a Monday
 XIS = [0.0010, 0.0018, 0.0030, 0.0045, 0.0065]
-OUT = Path(__file__).resolve().parent / "backtest_result.json"
+OUT = Path(__file__).resolve().parent / "backtests"
 
 
 def rps(p, o):
@@ -64,9 +65,9 @@ def evaluate(preds):
     }
 
 
-def main():
+def main(league):
     t0 = time.time()
-    matches = fetch.load_matches(download=False)
+    matches = fetch.load_matches(league, download=False)
     idx = {t: i for i, t in enumerate(sorted({m["home"] for m in matches} | {m["away"] for m in matches}))}
     grid = []
     for team_home in (False, True):
@@ -82,9 +83,12 @@ def main():
     (xi, team_home), r = best
     out = {"xi": xi, "team_home": team_home, "refit": "weekly", "window_days": model.WINDOW_DAYS,
            **r, "grid": grid, "runtime_s": round(time.time() - t0)}
-    OUT.write_text(json.dumps(out, indent=1))
-    print(f"best: xi={xi} team_home={team_home}; wrote {OUT} in {time.time() - t0:.0f}s")
+    path = OUT / f"{league}.json"
+    path.write_text(json.dumps(out, indent=1))
+    print(f"best: xi={xi} team_home={team_home}; wrote {path} in {time.time() - t0:.0f}s")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2 or sys.argv[1] not in fetch.LEAGUES:
+        sys.exit(f"usage: python pipeline/backtest.py {{{'|'.join(fetch.LEAGUES)}}}")
+    main(sys.argv[1])

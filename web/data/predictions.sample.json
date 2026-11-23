@@ -1,398 +1,434 @@
 {
- "generated_at": "2026-11-09T12:00:00Z",
- "league": "Liga MX",
- "model": {
-  "name": "dixon-coles",
-  "xi": 0.0018,
-  "rho": -0.08,
-  "home_adv": 0.3,
-  "n_matches": 1224
- },
- "backtest": {
-  "n": 2400,
-  "from": "2019-07-01",
-  "to": "2026-11-01",
-  "rps_model": 0.2052,
-  "rps_market": 0.2011,
-  "logloss_model": 1.031,
-  "logloss_market": 1.019,
-  "calibration": [
-   {
-    "bin": 0.05,
-    "pred": 0.053,
-    "obs": 0.044,
-    "n": 96
+ "generated_at": "2026-11-23T13:30:00Z",
+ "leagues": [
+  {
+   "code": "mex",
+   "name": "Liga MX",
+   "model": {
+    "name": "dixon-coles",
+    "xi": 0.003,
+    "rho": -0.0573,
+    "home_adv": 0.227,
+    "n_matches": 1006
    },
-   {
-    "bin": 0.15,
-    "pred": 0.132,
-    "obs": 0.157,
-    "n": 612
-   },
-   {
-    "bin": 0.25,
-    "pred": 0.264,
-    "obs": 0.262,
-    "n": 2840
-   },
-   {
-    "bin": 0.35,
-    "pred": 0.335,
-    "obs": 0.343,
-    "n": 1502
-   },
-   {
-    "bin": 0.45,
-    "pred": 0.442,
-    "obs": 0.446,
-    "n": 1010
-   },
-   {
-    "bin": 0.55,
-    "pred": 0.553,
-    "obs": 0.544,
-    "n": 702
-   },
-   {
-    "bin": 0.65,
-    "pred": 0.656,
-    "obs": 0.642,
-    "n": 334
-   },
-   {
-    "bin": 0.75,
-    "pred": 0.733,
-    "obs": 0.751,
-    "n": 98
-   },
-   {
-    "bin": 0.85,
-    "pred": 0.832,
-    "obs": 0.85,
-    "n": 6
+   "backtest": {
+    "n": 2451,
+    "from": "2019-07-20",
+    "to": "2026-11-02",
+    "rps_model": 0.21183,
+    "rps_market": 0.20592,
+    "logloss_model": 1.02691,
+    "logloss_market": 1.00831,
+    "calibration": [
+     {
+      "bin": 0.05,
+      "pred": 0.0822,
+      "obs": 0.0714,
+      "n": 56
+     },
+     {
+      "bin": 0.15,
+      "pred": 0.1636,
+      "obs": 0.1742,
+      "n": 752
+     },
+     {
+      "bin": 0.25,
+      "pred": 0.2567,
+      "obs": 0.2598,
+      "n": 3133
+     },
+     {
+      "bin": 0.35,
+      "pred": 0.3446,
+      "obs": 0.3354,
+      "n": 1455
+     },
+     {
+      "bin": 0.45,
+      "pred": 0.4465,
+      "obs": 0.4582,
+      "n": 969
+     },
+     {
+      "bin": 0.55,
+      "pred": 0.5468,
+      "obs": 0.5209,
+      "n": 599
+     },
+     {
+      "bin": 0.65,
+      "pred": 0.6402,
+      "obs": 0.6417,
+      "n": 307
+     },
+     {
+      "bin": 0.75,
+      "pred": 0.733,
+      "obs": 0.7671,
+      "n": 73
+     },
+     {
+      "bin": 0.85,
+      "pred": 0.834,
+      "obs": 0.5556,
+      "n": 9
+     }
+    ]
    }
-  ]
- },
- "teams": [
-  {
-   "name": "Atl. San Luis",
-   "attack": -0.1,
-   "defence": 0.11,
-   "home": 0.33
   },
   {
-   "name": "Atlante",
-   "attack": -0.12,
-   "defence": 0.13,
-   "home": 0.29
+   "code": "epl",
+   "name": "Premier League",
+   "model": {
+    "name": "dixon-coles",
+    "xi": 0.003,
+    "rho": -0.0592,
+    "home_adv": 0.198,
+    "n_matches": 1120
+   },
+   "backtest": {
+    "n": 2760,
+    "from": "2019-08-09",
+    "to": "2026-11-08",
+    "rps_model": 0.20326,
+    "rps_market": 0.19709,
+    "logloss_model": 0.98503,
+    "logloss_market": 0.96569,
+    "calibration": [
+     {
+      "bin": 0.05,
+      "pred": 0.073,
+      "obs": 0.0886,
+      "n": 237
+     },
+     {
+      "bin": 0.15,
+      "pred": 0.1603,
+      "obs": 0.1508,
+      "n": 1134
+     },
+     {
+      "bin": 0.25,
+      "pred": 0.25,
+      "obs": 0.2533,
+      "n": 3245
+     },
+     {
+      "bin": 0.35,
+      "pred": 0.3455,
+      "obs": 0.3498,
+      "n": 1295
+     },
+     {
+      "bin": 0.45,
+      "pred": 0.4468,
+      "obs": 0.4261,
+      "n": 981
+     },
+     {
+      "bin": 0.55,
+      "pred": 0.5452,
+      "obs": 0.5504,
+      "n": 674
+     },
+     {
+      "bin": 0.65,
+      "pred": 0.6464,
+      "obs": 0.6553,
+      "n": 438
+     },
+     {
+      "bin": 0.75,
+      "pred": 0.7435,
+      "obs": 0.7704,
+      "n": 196
+     },
+     {
+      "bin": 0.85,
+      "pred": 0.8368,
+      "obs": 0.8194,
+      "n": 72
+     },
+     {
+      "bin": 0.95,
+      "pred": 0.9127,
+      "obs": 0.875,
+      "n": 8
+     }
+    ]
+   }
   },
   {
-   "name": "Atlas",
-   "attack": -0.08,
-   "defence": 0.09,
-   "home": 0.27
-  },
-  {
-   "name": "Club America",
-   "attack": 0.27,
-   "defence": -0.18,
-   "home": 0.29
-  },
-  {
-   "name": "Club Leon",
-   "attack": 0.04,
-   "defence": 0.03,
-   "home": 0.32
-  },
-  {
-   "name": "Club Tijuana",
-   "attack": 0.08,
-   "defence": 0.06,
-   "home": 0.4
-  },
-  {
-   "name": "Cruz Azul",
-   "attack": 0.24,
-   "defence": -0.26,
-   "home": 0.31
-  },
-  {
-   "name": "Guadalajara Chivas",
-   "attack": 0.05,
-   "defence": -0.06,
-   "home": 0.28
-  },
-  {
-   "name": "Juarez",
-   "attack": 0.0,
-   "defence": 0.07,
-   "home": 0.36
-  },
-  {
-   "name": "Monterrey",
-   "attack": 0.2,
-   "defence": -0.08,
-   "home": 0.3
-  },
-  {
-   "name": "Necaxa",
-   "attack": -0.05,
-   "defence": 0.1,
-   "home": 0.25
-  },
-  {
-   "name": "Pachuca",
-   "attack": 0.12,
-   "defence": -0.04,
-   "home": 0.34
-  },
-  {
-   "name": "Puebla",
-   "attack": -0.22,
-   "defence": 0.2,
-   "home": 0.28
-  },
-  {
-   "name": "Queretaro",
-   "attack": -0.18,
-   "defence": 0.16,
-   "home": 0.26
-  },
-  {
-   "name": "Santos Laguna",
-   "attack": -0.14,
-   "defence": 0.14,
-   "home": 0.3
-  },
-  {
-   "name": "Tigres UANL",
-   "attack": 0.22,
-   "defence": -0.22,
-   "home": 0.33
-  },
-  {
-   "name": "Toluca",
-   "attack": 0.34,
-   "defence": -0.2,
-   "home": 0.38
-  },
-  {
-   "name": "UNAM Pumas",
-   "attack": 0.02,
-   "defence": -0.03,
-   "home": 0.31
+   "code": "esp",
+   "name": "LaLiga",
+   "model": {
+    "name": "dixon-coles",
+    "xi": 0.0018,
+    "rho": -0.042,
+    "home_adv": 0.2868,
+    "n_matches": 1131
+   },
+   "backtest": {
+    "n": 2779,
+    "from": "2019-08-16",
+    "to": "2026-11-08",
+    "rps_model": 0.19791,
+    "rps_market": 0.19157,
+    "logloss_model": 0.98709,
+    "logloss_market": 0.96632,
+    "calibration": [
+     {
+      "bin": 0.05,
+      "pred": 0.0776,
+      "obs": 0.0718,
+      "n": 195
+     },
+     {
+      "bin": 0.15,
+      "pred": 0.1603,
+      "obs": 0.1412,
+      "n": 1020
+     },
+     {
+      "bin": 0.25,
+      "pred": 0.2563,
+      "obs": 0.2552,
+      "n": 3123
+     },
+     {
+      "bin": 0.35,
+      "pred": 0.3394,
+      "obs": 0.3235,
+      "n": 1768
+     },
+     {
+      "bin": 0.45,
+      "pred": 0.4467,
+      "obs": 0.4655,
+      "n": 1001
+     },
+     {
+      "bin": 0.55,
+      "pred": 0.547,
+      "obs": 0.5499,
+      "n": 671
+     },
+     {
+      "bin": 0.65,
+      "pred": 0.6413,
+      "obs": 0.7229,
+      "n": 332
+     },
+     {
+      "bin": 0.75,
+      "pred": 0.7433,
+      "obs": 0.7709,
+      "n": 179
+     },
+     {
+      "bin": 0.85,
+      "pred": 0.8264,
+      "obs": 0.8125,
+      "n": 48
+     }
+    ]
+   }
   }
  ],
  "fixtures": [
   {
-   "id": "espn-741200",
-   "kickoff": "2026-11-14T00:00:00Z",
-   "stage": "regular",
-   "home": "Puebla",
-   "away": "Toluca",
-   "lambda": 1.08,
-   "mu": 2.14,
-   "rho": -0.08,
-   "p": {
-    "home": 0.175,
-    "draw": 0.216,
-    "away": 0.609
-   },
+   "id": "odds-sample-1",
+   "league": "mex",
+   "kickoff": "2026-11-27T02:00:00Z",
+   "home": "Toluca",
+   "away": "Club America",
+   "lambda": 1.9017,
+   "mu": 1.4279,
+   "rho": -0.0573,
    "market": {
-    "home": 5.6,
-    "draw": 4.26,
-    "away": 1.61,
-    "source": "best-of-7",
+    "home": 1.95,
+    "draw": 4.14,
+    "away": 3.51,
+    "source": "best-of-6",
     "fair": {
-     "home": 0.1726,
-     "draw": 0.2269,
-     "away": 0.6004,
-     "source": "consensus-5"
-    }
-   }
-  },
-  {
-   "id": "espn-741207",
-   "kickoff": "2026-11-14T02:06:00Z",
-   "stage": "regular",
-   "home": "Juarez",
-   "away": "Atlas",
-   "lambda": 1.95,
-   "mu": 1.23,
-   "rho": -0.08,
-   "p": {
-    "home": 0.533,
-    "draw": 0.236,
-    "away": 0.231
-   },
-   "market": null
-  },
-  {
-   "id": "espn-741214",
-   "kickoff": "2026-11-15T00:00:00Z",
-   "stage": "regular",
-   "home": "Monterrey",
-   "away": "Pachuca",
-   "lambda": 1.97,
-   "mu": 1.3,
-   "rho": -0.08,
-   "p": {
-    "home": 0.522,
-    "draw": 0.234,
-    "away": 0.244
-   },
-   "market": {
-    "home": 1.83,
-    "draw": 4.29,
-    "away": 3.9,
-    "source": "best-of-7",
-    "fair": {
-     "home": 0.5275,
-     "draw": 0.225,
-     "away": 0.2475,
+     "home": 0.4932,
+     "draw": 0.2325,
+     "away": 0.2743,
      "source": "pinnacle"
     }
    }
   },
   {
-   "id": "espn-741221",
-   "kickoff": "2026-11-15T02:00:00Z",
-   "stage": "regular",
-   "home": "Club Tijuana",
-   "away": "Club Leon",
-   "lambda": 2.08,
-   "mu": 1.38,
-   "rho": -0.08,
-   "p": {
-    "home": 0.529,
-    "draw": 0.226,
-    "away": 0.245
-   },
-   "market": null
-  },
-  {
-   "id": "espn-741228",
-   "kickoff": "2026-11-15T02:05:00Z",
-   "stage": "regular",
-   "home": "Club America",
-   "away": "Guadalajara Chivas",
-   "lambda": 2.05,
-   "mu": 1.09,
-   "rho": -0.08,
-   "p": {
-    "home": 0.587,
-    "draw": 0.225,
-    "away": 0.188
-   },
-   "market": {
-    "home": 1.62,
-    "draw": 4.48,
-    "away": 5.11,
-    "source": "best-of-7",
-    "fair": {
-     "home": 0.5957,
-     "draw": 0.2154,
-     "away": 0.1889,
-     "source": "consensus-5"
-    }
-   }
-  },
-  {
-   "id": "espn-741235",
-   "kickoff": "2026-11-15T03:00:00Z",
-   "stage": "regular",
-   "home": "Atlante",
-   "away": "Necaxa",
-   "lambda": 1.63,
-   "mu": 1.35,
-   "rho": -0.08,
-   "p": {
-    "home": 0.432,
-    "draw": 0.259,
-    "away": 0.309
-   },
-   "market": null
-  },
-  {
-   "id": "espn-741242",
-   "kickoff": "2026-11-15T23:00:00Z",
-   "stage": "regular",
-   "home": "Cruz Azul",
-   "away": "Queretaro",
-   "lambda": 2.53,
-   "mu": 0.8,
-   "rho": -0.08,
-   "p": {
-    "home": 0.743,
-    "draw": 0.166,
-    "away": 0.091
-   },
-   "market": {
-    "home": 1.3,
-    "draw": 5.77,
-    "away": 10.7,
-    "source": "best-of-7",
-    "fair": {
-     "home": 0.7425,
-     "draw": 0.1673,
-     "away": 0.0902,
-     "source": "pinnacle"
-    }
-   }
-  },
-  {
-   "id": "espn-741249",
-   "kickoff": "2026-11-16T01:00:00Z",
-   "stage": "regular",
+   "id": "odds-sample-2",
+   "league": "mex",
+   "kickoff": "2026-11-28T03:05:00Z",
    "home": "Tigres UANL",
-   "away": "UNAM Pumas",
-   "lambda": 2.1,
-   "mu": 1.02,
-   "rho": -0.08,
-   "p": {
-    "home": 0.614,
-    "draw": 0.218,
-    "away": 0.168
-   },
+   "away": "Monterrey",
+   "lambda": 1.7538,
+   "mu": 1.236,
+   "rho": -0.0573,
    "market": {
-    "home": 1.7,
-    "draw": 3.91,
-    "away": 5.24,
-    "source": "best-of-7",
+    "home": 1.92,
+    "draw": 3.92,
+    "away": 3.79,
+    "source": "best-of-6",
     "fair": {
-     "home": 0.5684,
-     "draw": 0.2471,
-     "away": 0.1844,
+     "home": 0.5005,
+     "draw": 0.2456,
+     "away": 0.2539,
+     "source": "consensus-5"
+    }
+   }
+  },
+  {
+   "id": "odds-sample-4",
+   "league": "epl",
+   "kickoff": "2026-11-28T17:30:00Z",
+   "home": "Arsenal",
+   "away": "Man City",
+   "lambda": 1.4889,
+   "mu": 0.9529,
+   "rho": -0.0592,
+   "market": {
+    "home": 1.92,
+    "draw": 3.51,
+    "away": 4.26,
+    "source": "best-of-6",
+    "fair": {
+     "home": 0.5001,
+     "draw": 0.2743,
+     "away": 0.2256,
+     "source": "consensus-5"
+    }
+   }
+  },
+  {
+   "id": "odds-sample-3",
+   "league": "mex",
+   "kickoff": "2026-11-29T01:00:00Z",
+   "home": "Cruz Azul",
+   "away": "UNAM Pumas",
+   "lambda": 2.0366,
+   "mu": 1.2124,
+   "rho": -0.0573,
+   "market": null
+  },
+  {
+   "id": "odds-sample-5",
+   "league": "epl",
+   "kickoff": "2026-11-29T15:00:00Z",
+   "home": "Newcastle",
+   "away": "Nott'm Forest",
+   "lambda": 1.5033,
+   "mu": 1.229,
+   "rho": -0.0592,
+   "market": {
+    "home": 2.19,
+    "draw": 3.6,
+    "away": 3.28,
+    "source": "best-of-6",
+    "fair": {
+     "home": 0.44,
+     "draw": 0.2669,
+     "away": 0.2932,
      "source": "pinnacle"
     }
    }
   },
   {
-   "id": "espn-741256",
-   "kickoff": "2026-11-16T03:00:00Z",
-   "stage": "regular",
-   "home": "Atl. San Luis",
-   "away": "Santos Laguna",
-   "lambda": 1.8,
-   "mu": 1.21,
-   "rho": -0.08,
-   "p": {
-    "home": 0.504,
-    "draw": 0.249,
-    "away": 0.247
-   },
+   "id": "odds-sample-6",
+   "league": "epl",
+   "kickoff": "2026-11-29T15:00:00Z",
+   "home": "Wolves",
+   "away": "Brighton",
+   "lambda": 0.881,
+   "mu": 1.8786,
+   "rho": -0.0592,
+   "market": null
+  },
+  {
+   "id": "odds-sample-7",
+   "league": "esp",
+   "kickoff": "2026-11-29T20:00:00Z",
+   "home": "Real Madrid",
+   "away": "Ath Madrid",
+   "lambda": 1.8499,
+   "mu": 1.0031,
+   "rho": -0.042,
    "market": {
-    "home": 1.76,
-    "draw": 4.26,
-    "away": 4.29,
-    "source": "best-of-7",
+    "home": 1.66,
+    "draw": 4.14,
+    "away": 5.07,
+    "source": "best-of-6",
     "fair": {
-     "home": 0.5484,
-     "draw": 0.2266,
-     "away": 0.225,
-     "source": "consensus-5"
+     "home": 0.5782,
+     "draw": 0.2323,
+     "away": 0.1895,
+     "source": "pinnacle"
     }
    }
+  },
+  {
+   "id": "odds-sample-8",
+   "league": "esp",
+   "kickoff": "2026-11-30T17:30:00Z",
+   "home": "Betis",
+   "away": "Sociedad",
+   "lambda": 1.9604,
+   "mu": 1.1659,
+   "rho": -0.042,
+   "market": null
+  }
+ ],
+ "results": [
+  {
+   "league": "epl",
+   "date": "2026-11-22",
+   "home": "Liverpool",
+   "away": "Everton",
+   "hg": 2,
+   "ag": 1
+  },
+  {
+   "league": "esp",
+   "date": "2026-11-22",
+   "home": "Barcelona",
+   "away": "Sevilla",
+   "hg": 3,
+   "ag": 1
+  },
+  {
+   "league": "mex",
+   "date": "2026-11-22",
+   "home": "Club Leon",
+   "away": "Atlas",
+   "hg": 1,
+   "ag": 1
+  },
+  {
+   "league": "epl",
+   "date": "2026-11-21",
+   "home": "Chelsea",
+   "away": "Tottenham",
+   "hg": 0,
+   "ag": 0
+  },
+  {
+   "league": "esp",
+   "date": "2026-11-21",
+   "home": "Villarreal",
+   "away": "Valencia",
+   "hg": 2,
+   "ag": 0
+  },
+  {
+   "league": "mex",
+   "date": "2026-11-21",
+   "home": "Pachuca",
+   "away": "Toluca",
+   "hg": 1,
+   "ag": 2
   }
  ]
 }

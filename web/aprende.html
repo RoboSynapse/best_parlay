@@ -1,8 +1,28 @@
-<!-- Contenido de la pestaña Aprende (fragmento que app.js inserta; sin scripts por la CSP). -->
-<h2>Glosario</h2>
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d3a26">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Aprende · Best Parlay</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="page">
+<header class="top">
+  <a href="./" class="brand"><svg class="i" aria-hidden="true"><use href="icons/ui.svg#chevron-left"/></svg>Volver a la app</a>
+</header>
+<main>
+<h1>Aprende</h1>
+<p class="muted small">Qué significa cada término y cómo salen los números de la app. El tutorial corto está en el botón ⓘ de la app. Ir a: <a href="#glosario">Glosario</a> · <a href="#modelo">Cómo funciona el modelo</a></p>
+<h2 id="glosario">Glosario</h2>
 <div class="card">
 <p class="muted small">Las palabras que vas a ver en la app y en las casas de apuestas, explicadas sin rodeos.</p>
-<p class="small"><b>A</b> · <b>B</b> · <b>C</b> · <b>D</b> · <b>E</b> · <b>F</b> · <b>G</b> · <b>J</b> · <b>K</b> · <b>L</b> · <b>M</b> · <b>N</b> · <b>P</b> · <b>R</b> · <b>S</b> · <b>V</b> · <b>Y</b></p>
+<p class="small az"><a href="#g-ambos-anotan">A</a> · <a href="#g-backtest">B</a> · <a href="#g-calibracion">C</a> · <a href="#g-doble-oportunidad">D</a> · <a href="#g-empate">E</a> · <a href="#g-favorito">F</a> · <a href="#g-ganancia-esperada">G</a> · <a href="#g-juego-responsable">J</a> · <a href="#g-kelly">K</a> · <a href="#g-liguilla">L</a> · <a href="#g-margen">M</a> · <a href="#g-nuestro-modelo">N</a> · <a href="#g-parlay">P</a> · <a href="#g-resultado-1x2">R</a> · <a href="#g-seleccion">S</a> · <a href="#g-valor">V</a> · <a href="#g-ya-comenzo">Y</a></p>
 <dl class="gloss">
 
 <dt id="g-ambos-anotan">Ambos anotan (sí / no)</dt>
@@ -113,8 +133,8 @@
 </dl>
 </div>
 
-<h2>Cómo funciona el modelo</h2>
-<p class="muted small">Las matemáticas detrás de la app, sin fórmulas de universidad. Usamos como ejemplo un partido de los datos de muestra: <b>Monterrey vs Pachuca</b>.</p>
+<h2 id="modelo">Cómo funciona el modelo</h2>
+<p class="muted small">Las matemáticas detrás de la app, sin fórmulas de universidad. Usamos como ejemplo un partido de los datos de muestra: <b>Monterrey vs Pachuca</b>. El mismo modelo se ajusta por separado en cada liga (Liga MX, Premier League, LaLiga, Bundesliga, Serie A y Ligue 1), cada una con sus propios partidos.</p>
 
 <details class="card"><summary>1. De goles esperados a probabilidades</summary>
 <p>Cada equipo tiene un número de <b>ataque</b> (cuántos goles mete) y uno de <b>defensa</b> (cuántos recibe: negativo = buena defensa). Jugar en casa suma una <b>localía</b> general, más un extra propio de cada equipo. Con eso salen los goles esperados:</p>
@@ -226,3 +246,9 @@
 </ul>
 <p class="note"><b>Solo mayores de 18.</b> Juega responsable: apuesta solo lo que estés dispuesto a perder.</p>
 </details>
+
+<p class="foot muted small">Solo mayores de 18 · Información, no asesoría · No somos casa de apuestas ·
+  Juega con responsabilidad (Línea de la Vida 800 911 2000) · <a href="terminos.html">Términos, fuentes y privacidad</a></p>
+</main>
+</body>
+</html>
