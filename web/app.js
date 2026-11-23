@@ -7,7 +7,15 @@ const pct = (p, d = 1) => (100 * p).toFixed(d) + '%';
 const fair = p => (p > 0.001 ? (1 / p).toFixed(2) : '—');
 const num = s => parseFloat(String(s).replace(',', '.'));
 const SIDE = { '1': 'home', 'X': 'draw', '2': 'away' };
-const STAGE = { regular: 'Fase regular', playin: 'Play-in', liguilla: 'Liguilla' };
+// football-data.co.uk names (no accents) -> how people write them
+const NAME = {
+  'Club America': 'América', 'Club Leon': 'León', 'Juarez': 'Juárez', 'Queretaro': 'Querétaro',
+  'Mazatlan FC': 'Mazatlán', 'Atl. San Luis': 'Atlético de San Luis', 'Guadalajara Chivas': 'Chivas',
+  'UNAM Pumas': 'Pumas', 'Tigres UANL': 'Tigres', 'Club Tijuana': 'Tijuana',
+};
+const started = f => Date.parse(f.kickoff) < Date.now();
+const FOOT = `<p class="foot muted small">Solo mayores de 18 · Información, no asesoría · No somos casa de apuestas ·
+  Juega con responsabilidad (Línea de la Vida 800 911 2000) · <a href="#/modelo">Aviso, fuentes y privacidad</a></p>`;
 const icon = (name, cls) => `<svg class="i${cls ? ' ' + cls : ''}" aria-hidden="true"><use href="icons/ui.svg#${name}"/></svg>`;
 
 function load(key, dflt) {
@@ -20,7 +28,7 @@ function save(key, val) {
 const S = {
   data: null, sample: false, grids: new Map(),
   legs: load('bp.legs', []).filter(l => l && l.fid && isMarket(l.key)),
-  bankroll: load('bp.bankroll', '1000'),
+  bankroll: load('bp.bankroll', ''),
   saved: load('bp.saved', []).filter(s => s && Array.isArray(s.legs)),
 };
 
@@ -30,7 +38,7 @@ function grid(f) {
   return S.grids.get(f.id);
 }
 // Margin-free reference probabilities from the pipeline: Pinnacle, or the books' consensus.
-// The backtest shows this beats the model.
+// The backtest shows the (closing) market beats the model.
 function ref(f) {
   const m = f.market?.fair;
   return m ? { ...m, label: m.source === 'pinnacle' ? 'Pinnacle' : 'Consenso' } : null;
@@ -62,19 +70,19 @@ function viewPartidos() {
     const model = p.map(pi => `<td>${pct(pi, 0)}</td>`).join('');
     const refRow = r ? `<tr><td>${r.label}</td>${['home', 'draw', 'away'].map(s => `<td>${pct(r[s], 0)}</td>`).join('')}</tr>` : '';
     const best = r
-      ? `<tr><td>Mejor momio</td>${['home', 'draw', 'away'].map(s => {
+      ? `<tr><td>Mejor momio<br><span class="muted small">(alguna casa)</span></td>${['home', 'draw', 'away'].map(s => {
            const o = f.market[s], edge = r[s] * o - 1;
            return edge > 0 ? `<td class="value">${o.toFixed(2)}<br><span class="small">${icon('trend')}+${pct(edge)} valor</span></td>` : `<td>${o.toFixed(2)}</td>`;
          }).join('')}</tr>`
-      : '<tr><td colspan="4" class="muted small">Aún no hay momios publicados; vuelve más cerca del partido.</td></tr>';
+      : '<tr><td colspan="4" class="muted small">Aún no hay momios de referencia para este partido.</td></tr>';
     const past = new Date(f.kickoff).getTime() < now;
     return `<a class="card${past ? ' past' : ''}" href="#/partido/${encodeURIComponent(f.id)}">
       <div class="row"><span class="teams">${esc(f.home)} vs ${esc(f.away)}</span><span class="muted">${icon('chevron-right')}</span></div>
-      <div class="muted small">${icon('clock')} ${when(f.kickoff)} · ${icon('trophy')} ${STAGE[f.stage] || esc(f.stage || '')}${past ? ' · ya comenzó' : ''}</div>
+      <div class="muted small">${icon('clock')} ${when(f.kickoff)}${past ? ' · ya comenzó' : ''}</div>
       <table><tr><th></th><th>Local</th><th>Empate</th><th>Visita</th></tr>
         ${refRow}<tr class="muted small"><td>Nuestro modelo</td>${model}</tr>${best}</table></a>`;
   }).join('')
-    + (anyMarket ? '<p class="muted small">Pinnacle = probabilidad de sus momios sin margen (la referencia más precisa; si no cotiza, el consenso de las casas). Un momio resaltado paga más de lo justo según esa referencia (prob. × momio &gt; 1).</p>' : '');
+    + (anyMarket ? '<p class="muted small">Pinnacle = probabilidad de sus momios actuales sin margen (si no cotiza, el consenso de las casas). En el backtest, el mercado predijo mejor que nuestro modelo. Un momio resaltado paga más de lo justo según esa referencia (prob. × momio &gt; 1); suele estar en una casa extranjera, así que compáralo con el de tu casa.</p>' : '');
 }
 
 // ---------- Partido ----------
@@ -85,11 +93,11 @@ function marketButton(f, g, k) {
   const r = SIDE[k] && ref(f);
   if (r) {
     const s = SIDE[k], o = f.market[s], edge = r[s] * o - 1;
-    extra = `<span class="ref muted small">${r.label} ${pct(r[s])} (justa ${fair(r[s])}) · mejor momio ${o.toFixed(2)}${edge > 0 ? ` <span class="value">${icon('trend')}+${pct(edge)} valor</span>` : ''}</span>`;
+    extra = `<span class="ref muted small">${r.label} ${pct(r[s])} (momio justo ${fair(r[s])}) · mejor momio ${o.toFixed(2)}${edge > 0 ? ` <span class="value">${icon('trend')}+${pct(edge)} valor</span>` : ''}</span>`;
   }
-  return `<button class="mk${on ? ' on' : ''}" data-act="leg" data-fid="${esc(f.id)}" data-key="${k}">
+  return `<button class="mk${on ? ' on' : ''}" data-act="leg" data-fid="${esc(f.id)}" data-key="${k}"${started(f) ? ' disabled' : ''}>
     <span class="lbl">${icon('plus', 'add')}${icon('check', 'added')}${esc(marketLabel(k, f.home, f.away))}</span>
-    <span class="nums"><b>${pct(p)}</b> · justa ${fair(p)}</span>${extra}</button>`;
+    <span class="nums"><b>${pct(p)}</b> · momio justo ${fair(p)}</span>${extra}</button>`;
 }
 
 function viewPartido(id) {
@@ -107,13 +115,14 @@ function viewPartido(id) {
   const buttons = keys => keys.map(k => marketButton(f, g, k)).join('');
   return `<p class="nav"><a class="back" href="#/">${icon('chevron-left')}Partidos</a></p>
     <h1>${esc(f.home)} vs ${esc(f.away)}</h1>
-    <p class="muted small">${icon('clock')} ${when(f.kickoff)} · ${icon('trophy')} ${STAGE[f.stage] || esc(f.stage || '')} · goles esperados ${f.lambda.toFixed(2)} – ${f.mu.toFixed(2)}</p>
-    ${f.market ? '' : `<p class="note">${icon('info')}Aún no hay momios publicados para este partido: solo se muestra nuestro modelo.</p>`}
-    <p class="muted small">Toca un resultado para agregarlo (o quitarlo) del parlay. Justa = 1 / probabilidad del modelo.</p>
+    <p class="muted small">${icon('clock')} ${when(f.kickoff)}${started(f) ? ' · ya comenzó' : ''} · goles esperados ${f.lambda.toFixed(2)} – ${f.mu.toFixed(2)}</p>
+    ${started(f) ? `<p class="note">${icon('info')}Este partido ya comenzó: las probabilidades son de antes del partido y no sirven para apostar en vivo.</p>` : ''}
+    ${f.market ? '' : `<p class="note">${icon('info')}Aún no hay momios de referencia para este partido: solo se muestra nuestro modelo.</p>`}
+    <p class="muted small">Toca un resultado para agregarlo (o quitarlo) del parlay. Momio justo = 1 ÷ probabilidad del modelo.</p>
     <div class="card"><h2>${GROUPS[0][0]}</h2>${buttons(GROUPS[0][1])}</div>
     <details class="card"><summary>Marcadores y mapa</summary>
       <h3>Marcadores más probables</h3>
-      <table><tr><th>Marcador</th><th>Prob.</th><th>Cuota justa</th></tr>
+      <table><tr><th>Marcador</th><th>Prob.</th><th>Momio justo</th></tr>
       ${top.map(s => `<tr><td>${s.h}–${s.a}</td><td>${pct(s.p)}</td><td>${fair(s.p)}</td></tr>`).join('')}</table>
       <h3 style="margin-top:.8rem">Mapa de marcadores (%)</h3>
       <table class="heat"><tr><th></th><th colspan="${N}">Goles ${esc(f.away)} →</th></tr>
@@ -128,6 +137,7 @@ function toggleLeg(btn) {
   if (i >= 0) S.legs.splice(i, 1);
   else {
     const f = fixture(fid);
+    if (started(f)) return;
     // no pre-filled odds: the best price is often from a book the user can't bet at
     S.legs.push({ fid, key, odds: '', home: f.home, away: f.away });
   }
@@ -158,7 +168,8 @@ function parlayCalc() {
     pRef *= r ? r[SIDE[l.key]] : NaN;
     allPin &&= r?.label === 'Pinnacle';
   }
-  return { p, pRef, refLabel: allPin ? 'Pinnacle' : 'consenso', O, missing, sameMatch };
+  const past = [...byMatch.values()].some(m => started(m.f));
+  return { p, pRef, refLabel: allPin ? 'Pinnacle' : 'consenso', O, missing, sameMatch, past };
 }
 
 function summaryHtml() {
@@ -166,22 +177,28 @@ function summaryHtml() {
   const c = parlayCalc();
   if (c.missing) return `<p class="note">${icon('info')}Hay selecciones de partidos que ya no están en los datos. Quítalas para calcular el parlay.</p>`;
   let notes = '';
-  if (c.sameMatch) notes += `<p class="note">${icon('info')}Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. Muchas casas de apuestas no aceptan combinarlas en un parlay (o pagan menos).</p>`;
+  if (c.sameMatch) notes += `<p class="note">${icon('info')}Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. La casa no paga el producto de los momios en ese caso (muchas ni lo aceptan), así que no calculamos ganancia ni apuesta sugerida.</p>`;
   if (c.p === 0) notes += `<p class="note">${icon('info')}Estas selecciones no pueden cumplirse a la vez (probabilidad 0).</p>`;
-  const hasOdds = Number.isFinite(c.O);
+  if (c.past) notes += `<p class="note">${icon('info')}Un partido de este parlay ya comenzó: las probabilidades son de antes del partido y no sirven para apostar en vivo.</p>`;
+  const hasOdds = Number.isFinite(c.O) && !c.sameMatch;  // same-match legs: the product of odds isn't what books pay
   const hasRef = Number.isFinite(c.pRef);
-  const pBet = hasRef ? c.pRef : c.p;  // stake on the sharper reference when there is one
+  const pBet = hasRef ? c.pRef : c.p;
   const ev = hasOdds ? c.p * c.O - 1 : NaN;
   const evRef = hasOdds && hasRef ? c.pRef * c.O - 1 : NaN;
   const bank = num(S.bankroll);
-  const stake = hasOdds && bank > 0 ? bank * kelly(pBet, c.O) / 4 : NaN;
+  // stake only against the market reference: the model alone is less accurate (backtest)
+  const canStake = hasOdds && hasRef && !c.past && !S.sample;
+  const stake = canStake && bank > 0 ? bank * kelly(pBet, c.O) / 4 : NaN;
   const evB = e => `<b class="${e > 0 ? 'value' : e < 0 ? 'neg' : ''}">${Number.isFinite(e) ? (e > 0 ? icon('trend') + '+' : '') + pct(e) : '—'}</b>`;
   const evMain = hasRef ? evRef : ev;
   const money = v => '$' + v.toFixed(2);
   return notes + `<div class="verdict">
       <div>Apuesta sugerida: <b>${Number.isFinite(stake) ? money(stake) : '—'}</b></div>
-      <div>${!hasOdds ? 'Escribe el momio de cada selección.'
-        : stake > 0 ? `Si aciertas cobras <b>${money(stake * c.O)}</b>` : `Por cada $100 cobrarías <b>${money(100 * c.O)}</b>`}</div>
+      <div>${c.sameMatch ? 'Sin cálculo para selecciones del mismo partido.'
+        : !Number.isFinite(c.O) ? 'Escribe el momio de cada selección.'
+        : canStake && !(bank > 0) ? 'Escribe tu fondo para ver la apuesta sugerida.'
+        : stake > 0 ? `Si aciertas cobras <b>${money(stake * c.O)}</b>; si fallas (${pct(1 - pBet, 0)} de las veces) pierdes <b>${money(stake)}</b>`
+        : `Por cada $100 cobrarías <b>${money(100 * c.O)}</b> si aciertas (${pct(pBet, 0)} de las veces)`}</div>
     </div>
     <div class="stats">
       <div>Probabilidad de acertar<b>${pct(pBet, 2)}</b><span class="muted small">según ${hasRef ? c.refLabel : 'nuestro modelo'}</span></div>
@@ -189,15 +206,16 @@ function summaryHtml() {
     </div>
     <details><summary>Ver detalle</summary><div class="stats">
       <div>Prob. modelo<b>${pct(c.p, 2)}</b></div>
-      <div>EV vs modelo${evB(ev)}</div>
-      <div>Cuota justa (${c.refLabel})<b>${hasRef ? fair(c.pRef) : '—'}</b></div>
-      <div>Momio combinado<b>${hasOdds ? c.O.toFixed(2) : '—'}</b></div>
+      <div>Ganancia esperada (modelo)${evB(ev)}</div>
+      <div>Momio justo${hasRef ? ` (${c.refLabel})` : ''}<b>${hasRef ? fair(c.pRef) : '—'}</b></div>
+      <div>Momio combinado<b>${Number.isFinite(c.O) ? c.O.toFixed(2) : '—'}</b></div>
     </div></details>
-    <p class="muted small">${!hasOdds ? 'Escribe el momio de tu casa de apuestas en cada selección.'
-      : !hasRef ? 'Sin referencia de Pinnacle (combinaciones del mismo partido o mercados que no sean 1X2): se usa nuestro modelo, que en el backtest es menos preciso.'
+    <p class="muted small">${!Number.isFinite(c.O) ? 'Escribe el momio de tu casa de apuestas en cada selección.'
+      : c.sameMatch ? ''
+      : !hasRef ? 'Sin referencia de Pinnacle para alguna selección (mercados que no son 1X2 o partido sin momios): la probabilidad es de nuestro modelo, que en el backtest es menos preciso que el mercado, así que no sugerimos apuesta.'
       : evMain > 0 ? `Tu momio paga más de lo justo según ${c.refLabel}.`
       : `Tu momio no supera la línea justa de ${c.refLabel}: la apuesta sugerida es $0.`}</p>
-    <p class="muted small">Ganancia esperada = cuánto ganarías en promedio por cada $1 si apostaras esto muchas veces. La apuesta sugerida usa ¼ de la fórmula de Kelly: más cuando hay ventaja, $0 cuando no.</p>`;
+    <p class="muted small">Ganancia esperada = lo que ganarías en promedio por cada $100 apostados si hicieras esta apuesta muchas veces (+6% ≈ $6), suponiendo que la probabilidad es correcta. La apuesta sugerida usa ¼ de la fórmula de Kelly: más cuando hay ventaja, $0 cuando no. Solo mayores de 18; apuesta solo lo que estés dispuesto a perder.</p>`;
 }
 
 function viewParlay() {
@@ -206,7 +224,7 @@ function viewParlay() {
     const home = f ? f.home : l.home || '?', away = f ? f.away : l.away || '?';
     const r = f && SIDE[l.key] && ref(f);
     const sub = f ? `${esc(home)} vs ${esc(away)} · modelo ${pct(prob(grid(f), [l.key]))}`
-      + (r ? ` · justa ${r.label} ${fair(r[SIDE[l.key]])}` : '') : 'Partido no disponible';
+      + (r ? ` · momio justo ${r.label} ${fair(r[SIDE[l.key]])}` : '') + (started(f) ? ' · ya comenzó' : '') : 'Partido no disponible';
     return `<div class="leg"><div><b>${esc(marketLabel(l.key, home, away))}</b><br><span class="muted small">${sub}</span></div>
       <label class="small muted">Momio <input data-act="odds" data-i="${i}" placeholder="ej. 1.85" aria-label="Momio" value="${esc(l.odds ?? '')}"></label>
       <button class="ghost" data-act="del" data-i="${i}" aria-label="Quitar">${icon('x')}</button></div>`;
@@ -256,11 +274,11 @@ function viewModelo() {
     return `<tr><td>${name}</td><td${better === 'model' ? ' class="best"' : ''}>${mod?.toFixed(d) ?? '—'}</td>
       <td${better === 'market' ? ' class="best"' : ''}>${mkt?.toFixed(d) ?? '—'}</td></tr>`;
   };
-  const bt = b ? `<div class="card"><h2>Backtest (sin ver el futuro)</h2>
+  const bt = b ? `<div class="card"><h2>Backtest (reentrenando cada semana)</h2>
       <p class="muted small">${b.n} partidos · ${esc(b.from)} a ${esc(b.to)} · menor es mejor</p>
-      <table><tr><th>Métrica</th><th>Modelo</th><th>Pinnacle (cierre)</th></tr>
+      <table><tr><th>Métrica</th><th>Modelo</th><th>Mercado (cierre)</th></tr>
         ${row('RPS (error, menor es mejor)', b.rps_model, b.rps_market, 4)}${row('Log loss', b.logloss_model, b.logloss_market, 3)}</table>
-      ${b.rps_market < b.rps_model ? `<p class="small">En ${b.n} partidos, Pinnacle predijo un poco mejor que nuestro modelo; por eso lo usamos como referencia.</p>` : ''}</div>
+      ${b.rps_market < b.rps_model ? `<p class="small">En ${b.n} partidos, el mercado (Pinnacle al cierre, o el promedio de casas si no hay Pinnacle) predijo un poco mejor que nuestro modelo; por eso usamos los momios de Pinnacle como referencia.</p>` : ''}</div>
     ${b.calibration?.length ? `<div class="card"><h2>Calibración</h2>${calibSvg(b.calibration)}
       <p class="muted small">Cada punto agrupa predicciones parecidas (local, empate y visita). Si el modelo está bien calibrado, los puntos caen sobre la diagonal: cuando dice 40%, pasa cerca del 40% de las veces. El tamaño indica cuántos casos hay.</p></div>` : ''}`
     : '<p class="muted">No hay datos de backtest.</p>';
@@ -273,17 +291,24 @@ function viewModelo() {
       <tr><td>Ventaja de local (log)</td><td>${m.home_adv ?? '—'}</td></tr>
       <tr><td>ρ (ajuste de marcadores bajos)</td><td>${m.rho ?? '—'}</td></tr>
       <tr><td>ξ (peso de partidos recientes)</td><td>${m.xi ?? '—'}</td></tr></table>
-      <p class="muted small">Dixon–Coles: cada equipo tiene fuerza de ataque y defensa; de ahí salen los goles esperados de cada lado y una tabla de marcadores (Poisson con corrección para 0–0, 1–0, 0–1 y 1–1). Todos los mercados salen de esa tabla.</p></div>` : ''}`;
+      <p class="muted small">Dixon–Coles: cada equipo tiene fuerza de ataque y defensa; de ahí salen los goles esperados de cada lado y una tabla de marcadores (Poisson con corrección para 0–0, 1–0, 0–1 y 1–1). Todos los mercados salen de esa tabla.</p></div>` : ''}
+    <div class="card legal"><h2>Aviso</h2>
+      <p>Best Parlay es un proyecto personal, gratuito y sin fines de lucro, solo con fines informativos y de entretenimiento. <b>No es una casa de apuestas</b>: no acepta apuestas, no maneja dinero y no tiene relación con ninguna casa de apuestas, liga o club. Las probabilidades son estimaciones y pueden fallar; nada de lo que se muestra es una recomendación ni asesoría financiera o profesional.</p>
+      <p><b>Solo para mayores de 18 años.</b> Las apuestas pueden causar adicción: juega con responsabilidad y solo con lo que estés dispuesto a perder. Si decides apostar, hazlo únicamente en casas con permiso de la SEGOB. ¿Necesitas ayuda? Línea de la Vida <a href="tel:8009112000">800 911 2000</a> (gratuita, 24 h).</p>
+      <h3>Fuentes y marcas</h3>
+      <p>Datos: football-data.co.uk (resultados y momios históricos) y The Odds API (calendario y momios). Liga MX, los nombres de los clubes, Pinnacle y demás marcas pertenecen a sus respectivos dueños y se mencionan solo como referencia, sin afiliación.</p>
+      <h3>Privacidad</h3>
+      <p>Sin cuentas, cookies ni analítica. Tu fondo y tu parlay se guardan solo en tu dispositivo. El sitio está alojado en GitHub Pages, que puede registrar datos técnicos de acceso (como tu IP) conforme a su propia política de privacidad.</p></div>`;
 }
 
 // ---------- Tutorial ----------
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 const TOUR = [
   ['ticket', '¿Qué es un parlay?', 'Juntas varias selecciones en una sola apuesta. Los momios se multiplican: 2.00 × 1.80 = 3.60, así que $100 cobran $360… pero <b>tienes que acertar todas</b>. Si una falla, pierdes la apuesta.'],
-  ['info', 'Probabilidad y momio justo', 'Cada resultado muestra qué tan probable es. El momio justo = 1 ÷ probabilidad (50% → 2.00). Usamos como referencia a Pinnacle, la casa más precisa, sin su margen; «Nuestro modelo» es una segunda opinión.'],
-  ['trend', '¿Qué es «valor»?', `Un momio <span class="value">resaltado</span> paga más de lo justo: «+5% valor» significa que, a la larga, ganarías unos $5 por cada $100 apostados. Sin resaltado, la casa tiene la ventaja.`],
+  ['info', 'Probabilidad y momio justo', 'Cada resultado muestra qué tan probable es. El momio justo = 1 ÷ probabilidad (50% → 2.00). Usamos como referencia los momios de Pinnacle sin su margen; «Nuestro modelo» es una segunda opinión.'],
+  ['trend', '¿Qué es «valor»?', `Un momio <span class="value">resaltado</span> paga más de lo justo: «+5% valor» significa que, si consigues ese momio, a la larga ganarías unos $5 por cada $100 apostados (si la referencia acierta). Ese momio suele estar en una casa extranjera: compáralo con el de tu casa en la pestaña Parlay.`],
   ['plus', 'Arma tu parlay', 'Abre un partido y toca un resultado (+) para agregarlo. En la pestaña <b>Parlay</b> escribe el momio de tu casa de apuestas: sirve decimal (1.85) o americano (+150 / −120).'],
-  ['chart', '¿Cuánto apostar?', 'Escribe tu fondo y la app sugiere una apuesta prudente (¼ de Kelly). Si dice $0, no hay ventaja: mejor no apostar. Más selecciones = menos probable acertar. Apuesta solo lo que estés dispuesto a perder.'],
+  ['chart', '¿Cuánto apostar?', 'Escribe tu fondo y la app sugiere una apuesta prudente (¼ de Kelly). Si dice $0, no hay ventaja: mejor no apostar. Más selecciones = menos probable acertar. <b>Solo mayores de 18.</b> Apuesta solo lo que estés dispuesto a perder.'],
   ...(installed ? [] : [['ball', 'Instala la app', (/iPhone|iPad/.test(navigator.userAgent)
     ? 'En Safari toca <b>Compartir</b> y luego <b>«Agregar a inicio»</b>.'
     : 'En el menú ⋮ del navegador toca <b>«Instalar app»</b> (o «Agregar a pantalla principal»).')
@@ -314,11 +339,16 @@ function updateCount() {
 function render() {
   const h = location.hash.slice(1) || '/';
   let html, tab = 'partidos';
-  if (h.startsWith('/partido/')) html = viewPartido(decodeURIComponent(h.slice(9)));
+  if (h.startsWith('/partido/')) {
+    let id = '';
+    try { id = decodeURIComponent(h.slice(9)); } catch { /* malformed link: shows "no encontrado" */ }
+    html = viewPartido(id);
+  }
   else if (h === '/parlay') { html = viewParlay(); tab = 'parlay'; }
   else if (h === '/modelo') { html = viewModelo(); tab = 'modelo'; }
   else html = viewPartidos();
-  view.innerHTML = html;
+  const sample = S.sample ? `<p class="note">${icon('info')}<b>Datos de ejemplo inventados</b> (no se pudieron cargar los reales). No los uses para apostar.</p>` : '';
+  view.innerHTML = sample + html + FOOT;
   document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   updateCount();
 }
@@ -388,6 +418,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
     return;
   }
   S.data.fixtures = (S.data.fixtures || []).filter(f => f && f.id && f.kickoff && f.lambda > 0 && f.mu > 0);
+  for (const f of S.data.fixtures) { f.home = NAME[f.home] || f.home; f.away = NAME[f.away] || f.away; }
   $('#badge').hidden = !S.sample;
   if (S.data.generated_at) $('#updated').textContent = 'Actualizado ' + new Date(S.data.generated_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
   render();

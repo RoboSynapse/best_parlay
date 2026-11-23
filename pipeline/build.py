@@ -1,6 +1,6 @@
 """CI entry point: fetch data, fit with the backtested settings, write web/data/predictions.json.
 
-Usage: python pipeline/build.py   (set ODDS_API_KEY to include market odds)
+Usage: ODDS_API_KEY=... python pipeline/build.py   (the key is required: fixtures and odds come from The Odds API)
 """
 import datetime as dt
 import json
@@ -49,7 +49,7 @@ def main():
         "fixtures": fixtures,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
+    OUT.write_text(json.dumps(out, indent=1, ensure_ascii=False, allow_nan=False), encoding="utf-8")
     print(f"wrote {OUT}: rho={rho:.3f} home_adv={h:.3f} n_matches={n_fit}")
 
 

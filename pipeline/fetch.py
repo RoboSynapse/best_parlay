@@ -1,4 +1,4 @@
-"""Data fetching: football-data.co.uk results, ESPN fixtures, optional The Odds API prices."""
+"""Data fetching: football-data.co.uk results; The Odds API fixtures (/events) and prices (/odds)."""
 import csv
 import datetime as dt
 import os
@@ -10,7 +10,7 @@ import requests
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw" / "MEX.csv"
 CSV_URL = "https://www.football-data.co.uk/new/MEX.csv"
-ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/mex.1/scoreboard"
+EVENTS_URL = "https://api.the-odds-api.com/v4/sports/soccer_mexico_ligamx/events"
 ODDS_URL = "https://api.the-odds-api.com/v4/sports/soccer_mexico_ligamx/odds"
 UA = {"User-Agent": "best_parlay/1.0 (private hobby project)"}
 
@@ -79,57 +79,38 @@ def load_matches(download=True):
     return out
 
 
-def _stage(slug):
-    slug = (slug or "").lower()
-    if "play" in slug or "repechaje" in slug:
-        return "playin"
-    if "final" in slug or "liguilla" in slug:  # quarterfinals, semifinals, finals
-        return "liguilla"
-    return "regular"
+def fetch_fixtures(known, days=10, now=None):
+    """Not-started fixtures in the next `days` days from The Odds API /events (free: no quota cost).
 
-
-def _espn(params):
-    r = requests.get(ESPN_URL, params=params, headers=UA, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-    if "events" not in data:
-        raise ValueError(f"ESPN: no events key ({str(data)[:100]})")
-    return data["events"]
-
-
-def fetch_fixtures(known, days=10, today=None):
-    """Upcoming (not started) fixtures in the next `days` days, with canonical team names."""
-    today = today or dt.datetime.now(dt.timezone.utc).date()
-    dates = [today + dt.timedelta(i) for i in range(days + 1)]
+    Raises without a key or on any request error, so CI fails and Pages keeps the last good deploy.
+    (Replaces ESPN, whose terms forbid automated access.)"""
+    key = os.environ.get("ODDS_API_KEY")
+    if not key:
+        raise RuntimeError("ODDS_API_KEY is required (fixtures come from The Odds API)")
+    now = now or dt.datetime.now(dt.timezone.utc)
+    iso = "%Y-%m-%dT%H:%M:%SZ"
     try:
-        events = _espn({"dates": f"{dates[0]:%Y%m%d}-{dates[-1]:%Y%m%d}"})
-    except Exception as e:  # ESPN date ranges have been flaky (HTTP 400): fall back to one call per day
-        print(f"ESPN range query failed ({e}); querying day by day")
-        events, failed = [], 0
-        for d in dates:
-            try:
-                events += _espn({"dates": f"{d:%Y%m%d}"})
-            except Exception as e2:
-                print(f"WARNING: ESPN {d}: {e2}")
-                failed += 1
-        if failed == len(dates):  # ESPN down: fail the build so Pages keeps the last good deploy
-            raise RuntimeError("ESPN unreachable for every day") from e
-    fixtures, seen = [], set()
-    for e in events:
+        r = requests.get(EVENTS_URL, headers=UA, timeout=30, params={
+            "apiKey": key, "commenceTimeFrom": now.strftime(iso),
+            "commenceTimeTo": (now + dt.timedelta(days)).strftime(iso)})
+        r.raise_for_status()
+        events = r.json()
+    except Exception as e:  # never show str(e): it contains the URL with the API key
+        status = getattr(getattr(e, "response", None), "status_code", None)
+        raise RuntimeError(f"Odds API events failed ({type(e).__name__}, HTTP {status})") from None
+    fixtures = []
+    for ev in events:
         try:
-            if e["id"] in seen or e["status"]["type"]["state"] != "pre":
+            kickoff = dt.datetime.fromisoformat(ev["commence_time"].replace("Z", "+00:00"))
+            if kickoff <= now:  # /events also lists games in play
                 continue
-            seen.add(e["id"])
-            teams = {c["homeAway"]: c["team"]["displayName"] for c in e["competitions"][0]["competitors"]}
-            home, away = canon(teams["home"], known), canon(teams["away"], known)
+            home, away = canon(ev["home_team"], known), canon(ev["away_team"], known)
             if not home or not away:
-                print(f"!!! UNMAPPED ESPN TEAM NAME: {teams} -> add it to ALIASES in pipeline/fetch.py")
+                print(f"!!! UNMAPPED ODDS API TEAM NAME: {ev['home_team']} / {ev['away_team']} -> add it to ALIASES")
                 continue
-            kickoff = dt.datetime.fromisoformat(e["date"].replace("Z", "+00:00"))
-            fixtures.append({"id": f"espn-{e['id']}", "kickoff": kickoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                             "stage": _stage(e.get("season", {}).get("slug")), "home": home, "away": away})
-        except (KeyError, TypeError, ValueError) as err:
-            print(f"WARNING: skipping malformed ESPN event: {err}")
+            fixtures.append({"id": f"odds-{ev['id']}", "kickoff": kickoff.strftime(iso), "home": home, "away": away})
+        except (KeyError, TypeError, ValueError, AttributeError) as err:
+            print(f"WARNING: skipping malformed Odds API event: {err!r}")
     fixtures.sort(key=lambda f: f["kickoff"])
     return fixtures
 
@@ -175,7 +156,7 @@ def fetch_odds(known):
                     for o in mk.get("outcomes", []):
                         side = "draw" if o["name"] == "Draw" else "home" if o["name"] == ev["home_team"] else "away"
                         prices[side] = float(o["price"])
-                    if len(prices) == 3 and min(prices.values()) > 1:
+                    if len(prices) == 3 and all(1 < v < 1000 for v in prices.values()):  # drops inf/NaN junk
                         books[bk["key"]] = prices
                         for side, p in prices.items():
                             best[side] = max(best.get(side, 0.0), p)

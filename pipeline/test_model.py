@@ -67,10 +67,33 @@ def test_fair_probs_prefers_pinnacle():
     assert fetch.fair_probs({"a": pin, "b": pin})["source"] == "consensus-2"
 
 
-def test_fixtures_raise_when_espn_is_down(monkeypatch):
+def test_fixtures_fail_loudly_without_leaking_the_key(monkeypatch):
     import fetch, pytest
-    def down(params):
-        raise ConnectionError("down")
-    monkeypatch.setattr(fetch, "_espn", down)
-    with pytest.raises(RuntimeError):  # never publish an empty fixture list over good data
-        fetch.fetch_fixtures(["Toluca"], days=2)
+    monkeypatch.delenv("ODDS_API_KEY", raising=False)
+    with pytest.raises(RuntimeError):
+        fetch.fetch_fixtures(["Toluca"])
+    monkeypatch.setenv("ODDS_API_KEY", "SECRET123")
+    def down(*a, **k):
+        raise ConnectionError("https://api.example/events?apiKey=SECRET123")
+    monkeypatch.setattr(fetch.requests, "get", down)
+    with pytest.raises(RuntimeError) as e:  # never publish an empty fixture list over good data
+        fetch.fetch_fixtures(["Toluca"])
+    assert "SECRET123" not in str(e.value) and e.value.__suppress_context__
+
+
+def test_fixtures_parse_events(monkeypatch):
+    import datetime as dt, fetch
+    now = dt.datetime(2026, 11, 22, 12, tzinfo=dt.timezone.utc)
+    events = [
+        {"id": "a1", "commence_time": "2026-11-23T02:00:00Z", "home_team": "Club America", "away_team": "Toluca"},
+        {"id": "b2", "commence_time": "2026-11-22T11:00:00Z", "home_team": "Toluca", "away_team": "Club America"},  # in play
+        {"id": "c3", "commence_time": "2026-11-24T02:00:00Z", "home_team": "Nowhere FC", "away_team": "Toluca"},  # unmapped
+        {"id": "d4"},  # malformed
+    ]
+    class R:
+        def raise_for_status(self): pass
+        def json(self): return events
+    monkeypatch.setenv("ODDS_API_KEY", "k")
+    monkeypatch.setattr(fetch.requests, "get", lambda *a, **k: R())
+    fx = fetch.fetch_fixtures(["Club America", "Toluca"], now=now)
+    assert fx == [{"id": "odds-a1", "kickoff": "2026-11-23T02:00:00Z", "home": "Club America", "away": "Toluca"}]

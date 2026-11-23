@@ -1,5 +1,6 @@
 # Daily: fetch data, refit the model, write web/data/predictions.json, deploy web/ to GitHub Pages.
 # Nothing is committed back; predictions live only in the deployed site.
+# Note: GitHub disables this schedule after 60 days without repo activity; re-enable it in the Actions tab.
 name: build-and-deploy
 
 on:
@@ -11,8 +12,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -22,8 +21,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      # actions pinned to commit SHAs (tag in the comment)
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: "3.13"
           cache: pip
@@ -32,19 +32,21 @@ jobs:
       - run: node web/model.test.mjs
       - run: python pipeline/build.py
         env:
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}   # optional; without it market odds are null
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}   # required: fixtures and odds come from The Odds API
       - run: sed -i "s/^const VERSION = .*/const VERSION = 'bp-${GITHUB_SHA::7}';/" web/sw.js   # new commit => phones refresh the app shell
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b  # v4
         with:
           path: web
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:   # only the deploy job can publish to Pages
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4

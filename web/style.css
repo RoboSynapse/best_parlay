@@ -109,3 +109,6 @@ button.ghost.help { border: 0; color: var(--muted); padding: 0; }
 .tour .dots, .tour .small { text-align: center; margin: .4rem 0; }
 .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--line); margin: 0 3px; }
 .dots span.on { background: var(--accent); }
+.mk:disabled { opacity: .5; cursor: not-allowed; }
+.foot { margin: 1.2rem 0 .4rem; text-align: center; }
+.legal p { font-size: .88rem; }

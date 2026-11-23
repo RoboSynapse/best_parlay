@@ -1,7 +1,8 @@
 # best_parlay
 
 Liga MX match probabilities (Dixon–Coles) and a parlay builder, as a PWA for a handful of friends.
-Free stack only: football-data.co.uk + ESPN public JSON (+ optional The Odds API free tier), GitHub Actions, GitHub Pages.
+Free stack only: football-data.co.uk (results) + The Odds API free tier (fixtures via `/events`, which is free, and odds; set the
+`ODDS_API_KEY` repo secret, it is required), GitHub Actions, GitHub Pages. Personal, non-commercial, 18+; see the app's Aviso.
 
 ```
 pipeline/   Python: fetch data, fit model, walk-forward backtest, write web/data/predictions.json
@@ -25,9 +26,8 @@ The pipeline writes it; the app only reads it. The app builds score grids on-dev
   },
   "fixtures": [
     {
-      "id": "espn-123456",
+      "id": "odds-a512a48a58c4329048174217b2cc7ce0",
       "kickoff": "2026-11-14T02:00:00Z",
-      "stage": "regular",
       "home": "Toluca", "away": "America",
       "lambda": 1.62, "mu": 1.05, "rho": -0.08,
       "market": {
@@ -41,7 +41,6 @@ The pipeline writes it; the app only reads it. The app builds score grids on-dev
 
 - `market` is `null` when no odds are available. `home/draw/away` are the best decimal prices across books (where to bet);
   `fair` holds margin-free probabilities from Pinnacle, or the mean over all books (`consensus-N`) when Pinnacle has no price.
-  `fair` is the value benchmark: a price is value when `fair × odds > 1`. The backtest's market column is Pinnacle closing odds too.
-- `stage`: `"regular"`, `"playin"` or `"liguilla"`.
+  `fair` is the value benchmark: a price is value when `fair × odds > 1`. The backtest's market column is Pinnacle closing odds (average closing odds when Pinnacle is missing, ~14% of rows).
 - `calibration`: home/draw/away probabilities pooled into bins; `pred` = mean predicted, `obs` = observed frequency.
 - Team names are the canonical ones from football-data.co.uk `MEX.csv`.
