@@ -43,6 +43,7 @@ function ref(f) {
   const m = f.market?.fair;
   return m ? { ...m, label: m.source === 'pinnacle' ? 'Pinnacle' : 'Consenso' } : null;
 }
+const stamp = iso => new Date(iso).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const when = iso => new Date(iso).toLocaleString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 async function loadData() {
@@ -82,7 +83,7 @@ function viewPartidos() {
       <table><tr><th></th><th>Local</th><th>Empate</th><th>Visita</th></tr>
         ${refRow}<tr class="muted small"><td>Nuestro modelo</td>${model}</tr>${best}</table></a>`;
   }).join('')
-    + (anyMarket ? '<p class="muted small">Pinnacle = probabilidad de sus momios actuales sin margen (si no cotiza, el consenso de las casas). En el backtest, el mercado predijo mejor que nuestro modelo. Un momio resaltado paga más de lo justo según esa referencia (prob. × momio &gt; 1); suele estar en una casa extranjera, así que compáralo con el de tu casa.</p>' : '');
+    + (anyMarket ? '<p class="muted small">Pinnacle = probabilidad de sus momios (de la última actualización) sin margen (si no cotiza, el consenso de las casas). En el backtest, el mercado predijo mejor que nuestro modelo. Un momio resaltado paga más de lo justo según esa referencia (prob. × momio &gt; 1); suele estar en una casa extranjera, así que compáralo con el de tu casa.</p>' : '');
 }
 
 // ---------- Partido ----------
@@ -108,8 +109,8 @@ function viewPartido(id) {
   for (let h = 0; h < N; h++) for (let a = 0; a < N; a++) max = Math.max(max, g[h][a]);
   const heat = Array.from({ length: N }, (_, h) =>
     `<tr><th>${h}</th>${Array.from({ length: N }, (_, a) => {
-      const al = 0.85 * g[h][a] / max;
-      return `<td style="--a:${al.toFixed(2)}${al > 0.5 ? ';color:var(--accent-fg)' : ''}">${(100 * g[h][a]).toFixed(1)}</td>`;
+      const al = 0.45 * g[h][a] / max;  // light shading keeps the numbers ≥4.5:1 in both themes
+      return `<td style="--a:${al.toFixed(2)}">${(100 * g[h][a]).toFixed(1)}</td>`;
     }).join('')}</tr>`).join('');
   const top = g.flatMap((row, h) => row.map((p, a) => ({ h, a, p }))).sort((x, y) => y.p - x.p).slice(0, 5);
   const buttons = keys => keys.map(k => marketButton(f, g, k)).join('');
@@ -169,7 +170,12 @@ function parlayCalc() {
     allPin &&= r?.label === 'Pinnacle';
   }
   const past = [...byMatch.values()].some(m => started(m.f));
-  return { p, pRef, refLabel: allPin ? 'Pinnacle' : 'consenso', O, missing, sameMatch, past };
+  // typo guard: a typed momio far above the best market price (e.g. 18.5 for 1.85)
+  const typos = S.legs.filter(l => {
+    const f = fixture(l.fid), s = SIDE[l.key];
+    return f?.market && s && toDecimal(l.odds) > 1.5 * f.market[s];
+  }).map(l => { const f = fixture(l.fid); return `${marketLabel(l.key, f.home, f.away)}: ${l.odds} (mejor del mercado ${f.market[SIDE[l.key]].toFixed(2)})`; });
+  return { p, pRef, refLabel: allPin ? 'Pinnacle' : 'consenso', O, missing, sameMatch, past, typos };
 }
 
 function summaryHtml() {
@@ -179,7 +185,8 @@ function summaryHtml() {
   let notes = '';
   if (c.sameMatch) notes += `<p class="note">${icon('info')}Hay varias selecciones del mismo partido: están correlacionadas, así que el modelo las calcula juntas con la tabla de marcadores. La casa no paga el producto de los momios en ese caso (muchas ni lo aceptan), así que no calculamos ganancia ni apuesta sugerida.</p>`;
   if (c.p === 0) notes += `<p class="note">${icon('info')}Estas selecciones no pueden cumplirse a la vez (probabilidad 0).</p>`;
-  if (c.past) notes += `<p class="note">${icon('info')}Un partido de este parlay ya comenzó: las probabilidades son de antes del partido y no sirven para apostar en vivo.</p>`;
+  if (c.typos.length) notes += `<p class="note">${icon('info')}¿Escribiste bien el momio? Es mucho mayor que el mejor del mercado: ${c.typos.map(esc).join('; ')}. Corrígelo para ver la apuesta sugerida.</p>`;
+  if (c.past) notes +=`<p class="note">${icon('info')}Un partido de este parlay ya comenzó: las probabilidades son de antes del partido y no sirven para apostar en vivo.</p>`;
   const hasOdds = Number.isFinite(c.O) && !c.sameMatch;  // same-match legs: the product of odds isn't what books pay
   const hasRef = Number.isFinite(c.pRef);
   const pBet = hasRef ? c.pRef : c.p;
@@ -187,13 +194,15 @@ function summaryHtml() {
   const evRef = hasOdds && hasRef ? c.pRef * c.O - 1 : NaN;
   const bank = num(S.bankroll);
   // stake only against the market reference: the model alone is less accurate (backtest)
-  const canStake = hasOdds && hasRef && !c.past && !S.sample;
-  const stake = canStake && bank > 0 ? bank * kelly(pBet, c.O) / 4 : NaN;
+  const canStake = hasOdds && hasRef && !c.past && !S.sample && !S.stale && !c.typos.length;
+  const CAP = 0.05;  // never suggest more than 5% of the fund, whatever Kelly says
+  const frac = Math.min(kelly(pBet, c.O) / 4, CAP);
+  const stake = canStake && bank > 0 ? bank * frac : NaN;
   const evB = e => `<b class="${e > 0 ? 'value' : e < 0 ? 'neg' : ''}">${Number.isFinite(e) ? (e > 0 ? icon('trend') + '+' : '') + pct(e) : '—'}</b>`;
   const evMain = hasRef ? evRef : ev;
   const money = v => '$' + v.toFixed(2);
   return notes + `<div class="verdict">
-      <div>Apuesta sugerida: <b>${Number.isFinite(stake) ? money(stake) : '—'}</b></div>
+      <div>Apuesta sugerida: <b>${Number.isFinite(stake) ? money(stake) : '—'}</b>${Number.isFinite(stake) && frac === CAP ? ' <span class="muted small">(tope: 5% de tu fondo)</span>' : ''}</div>
       <div>${c.sameMatch ? 'Sin cálculo para selecciones del mismo partido.'
         : !Number.isFinite(c.O) ? 'Escribe el momio de cada selección.'
         : canStake && !(bank > 0) ? 'Escribe tu fondo para ver la apuesta sugerida.'
@@ -215,7 +224,7 @@ function summaryHtml() {
       : !hasRef ? 'Sin referencia de Pinnacle para alguna selección (mercados que no son 1X2 o partido sin momios): la probabilidad es de nuestro modelo, que en el backtest es menos preciso que el mercado, así que no sugerimos apuesta.'
       : evMain > 0 ? `Tu momio paga más de lo justo según ${c.refLabel}.`
       : `Tu momio no supera el momio justo de ${c.refLabel}: la apuesta sugerida es $0.`}</p>
-    <p class="muted small">Ganancia esperada = lo que ganarías en promedio por cada $100 apostados si hicieras esta apuesta muchas veces (+6% ≈ $6), suponiendo que la probabilidad es correcta. La apuesta sugerida usa ¼ de la fórmula de Kelly: más cuando hay ventaja, $0 cuando no. Solo mayores de 18; apuesta solo lo que estés dispuesto a perder.</p>`;
+    <p class="muted small">Ganancia esperada = lo que ganarías en promedio por cada $100 apostados si hicieras esta apuesta muchas veces (+6% ≈ $6), suponiendo que la probabilidad es correcta. La apuesta sugerida usa ¼ de la fórmula de Kelly, con tope de 5% de tu fondo: más cuando hay ventaja, $0 cuando no. Solo mayores de 18; apuesta solo lo que estés dispuesto a perder.</p>`;
 }
 
 function viewParlay() {
@@ -239,8 +248,8 @@ function viewParlay() {
     ${S.legs.length ? `<div class="card">
       <div class="row" style="margin-bottom:.6rem"><label for="bank">Tu fondo para apostar ($)</label>
         <input id="bank" data-act="bank" inputmode="decimal" value="${esc(S.bankroll)}"></div>
-      <div id="summary">${summaryHtml()}</div></div>
-    <div class="card"><div class="row"><input id="pname" class="wide" placeholder="Nombre del parlay">
+      <div id="summary" aria-live="polite">${summaryHtml()}</div></div>
+    <div class="card"><div class="row"><input id="pname" class="wide" placeholder="Nombre del parlay" aria-label="Nombre del parlay">
       <button class="btn" data-act="save">${icon('save')} Guardar</button></div>
       <p style="margin:.6rem 0 0"><button class="ghost" data-act="clear">${icon('trash')} Vaciar parlay</button></p></div>` : ''}
     ${saved ? `<h2>Guardados</h2><div class="card">${saved}</div>` : ''}`;
@@ -363,7 +372,8 @@ function render() {
   else if (h === '/aprende') { html = viewAprende(); tab = 'aprende'; }
   else html = viewPartidos();
   const sample = S.sample ? `<p class="note">${icon('info')}<b>Datos de ejemplo inventados</b> (no se pudieron cargar los reales). No los uses para apostar.</p>` : '';
-  view.innerHTML = sample + html + FOOT;
+  const stale = S.stale && !S.sample ? `<p class="note">${icon('info')}<b>Datos atrasados:</b> la última actualización fue el ${esc(stamp(S.data.generated_at))}; partidos y momios pueden haber cambiado y no sugerimos apuestas hasta la próxima actualización.</p>` : '';
+  view.innerHTML = sample + stale + html + FOOT;
   document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   updateCount();
 }
@@ -435,7 +445,9 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
   S.data.fixtures = (S.data.fixtures || []).filter(f => f && f.id && f.kickoff && f.lambda > 0 && f.mu > 0);
   for (const f of S.data.fixtures) { f.home = NAME[f.home] || f.home; f.away = NAME[f.away] || f.away; }
   $('#badge').hidden = !S.sample;
-  if (S.data.generated_at) $('#updated').textContent = 'Actualizado ' + new Date(S.data.generated_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  const gen = Date.parse(S.data.generated_at);
+  S.stale = !(Date.now() - gen < 36 * 3600e3);  // missing date or >36 h old: the daily job didn't run
+  if (gen) $('#updated').textContent = 'Actualizado ' + stamp(S.data.generated_at);
   render();
   if (!load('bp.tour', false)) tour(0);
 })();

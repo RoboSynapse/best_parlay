@@ -97,3 +97,10 @@ def test_fixtures_parse_events(monkeypatch):
     monkeypatch.setattr(fetch.requests, "get", lambda *a, **k: R())
     fx = fetch.fetch_fixtures(["Club America", "Toluca"], now=now)
     assert fx == [{"id": "odds-a1", "kickoff": "2026-11-23T02:00:00Z", "home": "Club America", "away": "Toluca"}]
+
+
+def test_gh_annotate_cannot_be_hijacked(capsys):
+    import fetch
+    fetch.gh_annotate("warning", "Evil FC\n::set-output name=x::y")
+    out = capsys.readouterr().out
+    assert out.count("\n") == 1 and out.startswith("::warning::") and out.count("::") == 2

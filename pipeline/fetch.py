@@ -33,6 +33,11 @@ ALIASES = {
 }
 
 
+def gh_annotate(level, msg):
+    """Print a GitHub Actions annotation (shown on the public run page). Upstream text can't inject commands."""
+    print(f"::{level}::" + str(msg).replace("\r", " ").replace("\n", " ").replace("::", ":"))
+
+
 def _norm(s):
     s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()
     return " ".join(s.lower().replace(".", " ").split())
@@ -106,7 +111,7 @@ def fetch_fixtures(known, days=10, now=None):
                 continue
             home, away = canon(ev["home_team"], known), canon(ev["away_team"], known)
             if not home or not away:
-                print(f"!!! UNMAPPED ODDS API TEAM NAME: {ev['home_team']} / {ev['away_team']} -> add it to ALIASES")
+                gh_annotate("warning", f"Unmapped team name (fixture dropped): {ev['home_team']} / {ev['away_team']} -> add it to ALIASES")
                 continue
             fixtures.append({"id": f"odds-{ev['id']}", "kickoff": kickoff.strftime(iso), "home": home, "away": away})
         except (KeyError, TypeError, ValueError, AttributeError) as err:
@@ -145,7 +150,7 @@ def fetch_odds(known):
         for ev in r.json():
             home, away = canon(ev["home_team"], known), canon(ev["away_team"], known)
             if not home or not away:
-                print(f"!!! UNMAPPED ODDS API TEAM NAME: {ev['home_team']} / {ev['away_team']}")
+                gh_annotate("warning", f"Unmapped team name (odds dropped): {ev['home_team']} / {ev['away_team']}")
                 continue
             best, books = {}, {}
             for bk in ev.get("bookmakers", []):

@@ -109,12 +109,12 @@ Sources: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [2.5.8 Target Size (Minimum)
 - [x] Dialog uses native `<dialog>` with `showModal`, `aria-labelledby` and focus on the main action; Esc closes it. Evidence: `web/index.html:31`, `web/app.js:320-326`.
 - [x] Icons are `aria-hidden`, icon-only buttons have labels, and the chart has `role="img"` and a label. Evidence: `web/index.html:22`, `web/app.js:230,235,260`.
 - [x] Text contrast of the main tokens, computed: light muted 5.6:1, link 5.0:1, value 4.5:1; dark all ≥4.6:1. Color is never the only cue ("+x% valor" with an icon). Evidence: `web/style.css:2-11`, `web/app.js:75`.
-- [ ] Past match cards use `opacity: .6`, which puts muted text at 2.4:1 in light mode (`web/style.css:46`).
+- [x] Past match cards use `opacity: .6`, which puts muted text at 2.4:1 in light mode (`web/style.css:46`).
   How: `.card.past { background: var(--bg); }` and drop the opacity. The "ya comenzó" label already says it.
-- [ ] Heat-map numbers fail: white on mid green is 2.1:1 in light mode, and dark mode is 4.0:1 (`web/app.js:111-112`).
+- [x] Heat-map numbers fail: white on mid green is 2.1:1 in light mode, and dark mode is 4.0:1 (`web/app.js:111-112`).
   How: `const al = 0.45 * g[h][a] / max;` and drop the `accent-fg` switch. That gives at least 4.6:1 in both themes.
-- [ ] Input borders are 1.3:1 (1.4.11 needs 3:1) (`web/style.css:77`). How: `border: 1px solid var(--muted)`.
-- [ ] The parlay-name input has only a placeholder (`web/app.js:243`). How: add `aria-label="Nombre del parlay"`.
+- [x] Input borders are 1.3:1 (1.4.11 needs 3:1) (`web/style.css:77`). How: `border: 1px solid var(--muted)`.
+- [x] The parlay-name input has only a placeholder (`web/app.js:243`). How: add `aria-label="Nombre del parlay"`.
 - [ ] 10-minute screen-reader pass: VoiceOver on iPhone and TalkBack on Android, covering match, add a pick, Parlay, and the tour. Optional: `aria-live="polite"` on `#summary` so typed odds announce the result.
 
 ## 7. Performance

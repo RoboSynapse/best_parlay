@@ -34,7 +34,7 @@ def main():
 
     fixtures = fetch.fetch_fixtures(known)
     odds = fetch.fetch_odds(known) if fixtures else {}
-    print(f"{len(fixtures)} upcoming fixtures, {len(odds)} with market odds")
+    fetch.gh_annotate("notice", f"{len(fixtures)} upcoming fixtures, {len(odds)} with market odds")
     for f in fixtures:
         lam, mu = model.rates(p, len(idx), np.array([idx[f["home"]]]), np.array([idx[f["away"]]]))
         f.update({"lambda": round(float(lam[0]), 4), "mu": round(float(mu[0]), 4), "rho": round(float(rho), 4),
